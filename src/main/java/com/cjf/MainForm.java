@@ -5,9 +5,18 @@ import com.cjf.util.ConnectionPoolImpl1;
 import com.cjf.util.ConnectionPoolImpl2;
 
 import javax.swing.*;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +26,8 @@ public class MainForm {
     private static ConnectionPoolImpl1 connectionPool1;
     private static ConnectionPoolImpl2 connectionPool2;
     private static ThreadPoolExecutor executor = new ThreadPoolExecutor(8, 10, 10, TimeUnit.MINUTES, new LinkedBlockingQueue<>(2000000));
+    private static List<String> url_item;
+    private static Deque URL_QUEUE;
 
     public MainForm() {
         startButton.addActionListener(new ActionListener() {
@@ -31,7 +42,7 @@ public class MainForm {
                     new MyDialog("请先获取数据库2的连接池 !");
                     return;
                 }
-                if (getSql == null || getSql.getText() == null || "".equals(getSql.getText())){
+                if (getSql == null || getSql.getText() == null || "".equals(getSql.getText())) {
                     new MyDialog("请输入输出sql !");
                     return;
                 }
@@ -77,8 +88,8 @@ public class MainForm {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("连接按钮开始");
                 try {
-                    connectionPool1 = new ConnectionPoolImpl1(url1.getText(), userName1.getText(), password1.getText());
-                    connectionPool2 = new ConnectionPoolImpl2(url2.getText(), userName2.getText(), password2.getText());
+                    connectionPool1 = new ConnectionPoolImpl1(url1.getToolTipText(), userName1.getText(), password1.getText());
+                    connectionPool2 = new ConnectionPoolImpl2(url2.getToolTipText(), userName2.getText(), password2.getText());
                     connectionPool1.init(5);
                     connectionPool2.init(5);
                     System.out.println(connectionPool1);
@@ -101,6 +112,75 @@ public class MainForm {
                 new MyDialog("数据库获取连接池成功！");
             }
         });
+        // 添加弹出菜单侦听器
+        url1.addPopupMenuListener(new PopupMenuListener() {
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {// 下拉时监听
+                if (URL_QUEUE == null) {
+                    URL_QUEUE = new ArrayDeque();
+                    try {
+                        List<String> init = init();
+                        for (String s : init) {
+                            URL_QUEUE.add(s);
+                        }
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                }
+                if (url_item == null) {
+                    try {
+                        url_item = init();
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                    url_item.forEach(x -> {
+                        url1.addItem(x);
+                        url2.addItem(x);
+                    });
+                }
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e) {
+
+            }
+        });
+        url2.addPopupMenuListener(new PopupMenuListener() {
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                if (url_item == null) {
+                    try {
+                        url_item = init();
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                    url_item.forEach(x -> {
+                        url1.addItem(x);
+                        url2.addItem(x);
+                    });
+                }
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e) {
+
+            }
+        });
+
+
+        //设置下拉框可编辑
+        url1.setEditable(true);
+        url2.setEditable(true);
     }
 
     class MyDialog extends JDialog {
@@ -122,13 +202,27 @@ public class MainForm {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         JFrame frame = new JFrame("MainForm");
-        frame.setContentPane(new MainForm().mainForm);
+        MainForm mainForm = new MainForm();
+        frame.setContentPane(mainForm.mainForm);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(1000, 500));
         frame.pack();
         frame.setVisible(true);
+
+    }
+
+    private List<String> init() throws IOException {
+        File file = new File(System.getProperty("user.dir") + "\\src\\main\\resources\\url.txt");
+        FileReader fileReader = new FileReader(file);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        List<String> list = new ArrayList<>();
+        String b;
+        while ((b = bufferedReader.readLine()) != null) {
+            list.add(b);
+        }
+        return list;
     }
 
 
@@ -145,13 +239,12 @@ public class MainForm {
     private JLabel inSql;
     private JLabel outSql;
     private JTextField tableName;
-    private JTextField url1;
+    private JComboBox url1;
     private JTextField userName1;
     private JPasswordField password2;
-    private JTextField url2;
+    private JComboBox url2;
     private JTextField userName2;
     private JPasswordField password1;
-
 
 
     private void createUIComponents() {
