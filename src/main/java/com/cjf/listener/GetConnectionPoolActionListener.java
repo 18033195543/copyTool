@@ -45,11 +45,11 @@ public class GetConnectionPoolActionListener implements ActionListener {
 
             MainForm.connectionPool1 = new ConnectionPoolImpl1(url1.getSelectedItem().toString(), userName1.getText(), password1.getText());
             MainForm.connectionPool2 = new ConnectionPoolImpl2(url2.getSelectedItem().toString(), userName2.getText(), password2.getText());
-            MainForm.connectionPool1.init(1);
+            MainForm.connectionPool1.init(5);
 
             updateUrlItem(str1);
 
-            MainForm.connectionPool2.init(1);
+            MainForm.connectionPool2.init(5);
             if (!str1.equals(str2)) {
                 updateUrlItem(str2);
             }

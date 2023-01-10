@@ -2,17 +2,12 @@ package com.cjf.opreationdata;
 
 
 import com.cjf.MainForm;
-import com.cjf.util.ConnectionPoolImpl1;
-import com.cjf.util.ConnectionPoolImpl2;
 
+import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 两个数据库之间导数据工具类
@@ -21,10 +16,12 @@ public class DataOperateService {
 
     private String outSql;
     private String tableName;
+    private JTextArea outLog;
 
-    public DataOperateService(String outSql, String tableName) {
+    public DataOperateService(String outSql, String tableName,JTextArea outLog) {
         this.outSql = outSql;
         this.tableName = tableName;
+        this.outLog = outLog;
     }
 
     public void reportLeaning() throws SQLException {
@@ -46,7 +43,12 @@ public class DataOperateService {
             split++;
         }
         for (int i = 0; i < split; i++) {
-            ExcutThread excutThread = new ExcutThread(count, count += 20000, outSql, tableName);
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            ExcutThread excutThread = new ExcutThread(count, count += 20000, outSql, tableName,outLog);
             MainForm.executor.execute(() -> {
                 try {
                     excutThread.excut();

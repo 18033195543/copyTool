@@ -20,16 +20,20 @@ public class StartCopyActionListener implements ActionListener {
     private JTextArea getSql;
 
     private JTextField tableName;
+    private JTextArea outLog;
 
-    public StartCopyActionListener(JTextArea getSql, JTextField tableName) {
+    public StartCopyActionListener(JTextArea getSql, JTextField tableName, JTextArea outLog) {
         this.getSql = getSql;
         this.tableName = tableName;
+        this.outLog = outLog;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         System.out.println("开始按钮");
+        outLog.append("开始按钮\n");
+        outLog.setCaretPosition(outLog.getDocument().getLength());
         if (MainForm.connectionPool1 == null) {
             new MyDialog("请先获取数据库1的连接池 !");
             return;
@@ -47,10 +51,12 @@ public class StartCopyActionListener implements ActionListener {
             return;
         }
 
-        DataOperateService dataOperateService = new DataOperateService(getSql.getText(), tableName.getText());
+        DataOperateService dataOperateService = new DataOperateService(getSql.getText(), tableName.getText(),outLog);
         try {
             dataOperateService.reportLeaning();
+            outLog.append("成功 !\n");
             new MyDialog("成功 !");
+            outLog.setCaretPosition(outLog.getDocument().getLength());
         } catch (Exception exception) {
             new MyDialog(exception.getMessage());
             exception.printStackTrace();

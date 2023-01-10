@@ -1,26 +1,15 @@
 package com.cjf;
 
-import com.cjf.dialog.MyDialog;
 import com.cjf.listener.CloseConnectionActionListener;
 import com.cjf.listener.GetConnectionPoolActionListener;
 import com.cjf.listener.StartCopyActionListener;
 import com.cjf.listener.UrlPopupMenuListener;
-import com.cjf.opreationdata.DataOperateService;
 import com.cjf.util.ConnectionPoolImpl1;
 import com.cjf.util.ConnectionPoolImpl2;
 
 import javax.swing.*;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.*;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -34,8 +23,8 @@ public class MainForm {
     public static List<String> url_item;
 
     public MainForm() {
-        startButton.addActionListener(new StartCopyActionListener(getSql, tableName));
-        cancelButton.addActionListener(new CloseConnectionActionListener());
+        startButton.addActionListener(new StartCopyActionListener(getSql, tableName, outLog));
+        cancelButton.addActionListener(new CloseConnectionActionListener(outLog));
         connectButton.addActionListener(new GetConnectionPoolActionListener(url1, url2,  userName2, userName1, password1, password2));
         // 添加弹出菜单侦听器
         url1.addPopupMenuListener(new UrlPopupMenuListener(url1, url2));
@@ -59,7 +48,6 @@ public class MainForm {
 
 
     private JPanel mainForm;
-    private JTextArea textArea1;
 
     private JButton connectButton;
     private JButton cancelButton;
@@ -77,6 +65,7 @@ public class MainForm {
     private JComboBox url2;
     private JTextField userName2;
     private JPasswordField password1;
+    private JTextArea outLog;
 
 
     private void createUIComponents() {

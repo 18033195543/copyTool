@@ -2,6 +2,7 @@ package com.cjf.opreationdata;
 
 import com.cjf.MainForm;
 
+import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,18 +15,22 @@ public class ExcutThread {
     private int b;
     private String outSql;
     private String tableName;
+    private JTextArea outLog;
 
-    public ExcutThread(int a, int b,  String outSql, String tableName) {
+    public ExcutThread(int a, int b,  String outSql, String tableName,JTextArea outLog) {
         this.a = a;
         this.b = b;
         this.outSql = outSql;
         this.tableName = tableName;
+        this.outLog = outLog;
     }
 
     public void excut() throws SQLException {
         Connection connection = MainForm.connectionPool1.getConnection();
         String sql = "SELECT * FROM  ( select rownum n,e.* from ( " + outSql + " ) e) where n > ?  and n <= ?";
         System.out.println(sql + " 参数：->" + a + "->" + b);
+        outLog.append(sql + " 参数：->" + a + "->" + b +"\n");
+        outLog.setCaretPosition(outLog.getDocument().getLength());
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setInt(1, a);
         preparedStatement.setInt(2, b);
@@ -81,7 +86,7 @@ public class ExcutThread {
     }
 
 
-    private static void insertDate( String tableName, List<String> columns, List<Map> dateRowList) {
+    private void insertDate( String tableName, List<String> columns, List<Map> dateRowList) {
         columns.remove(0);
         String insertSql = "insert into " + tableName + " ( ";
         String collect = columns.stream().collect(Collectors.joining(","));
@@ -106,6 +111,8 @@ public class ExcutThread {
                     preparedStatement.executeBatch();
                     preparedStatement.clearBatch();
                     System.out.println(Thread.currentThread().getName()+"---->"+count);
+                    outLog.append(Thread.currentThread().getName()+"---->"+count+"\n");
+                    outLog.setCaretPosition(outLog.getDocument().getLength());
                 }
             }
             preparedStatement.close();
