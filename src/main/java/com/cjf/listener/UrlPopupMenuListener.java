@@ -1,5 +1,7 @@
 package com.cjf.listener;
 
+import com.cjf.MainForm;
+
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -10,22 +12,20 @@ import java.util.List;
 
 public class UrlPopupMenuListener implements PopupMenuListener {
 
-    public UrlPopupMenuListener(List<String> url_item, JComboBox url1, JComboBox url2) {
-        this.url_item = url_item;
+    public UrlPopupMenuListener(JComboBox url1, JComboBox url2) {
         this.url1 = url1;
         this.url2 = url2;
     }
 
-    private List<String> url_item;
     private JComboBox url1;
     private JComboBox url2;
 
     @Override
     public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
         // 下拉时监听
-        if (url_item == null) {
-            url_item = init();
-            url_item.forEach(x -> {
+        if (MainForm.url_item == null) {
+            MainForm.url_item = init();
+            MainForm.url_item.forEach(x -> {
                 url1.addItem(x);
                 url2.addItem(x);
             });

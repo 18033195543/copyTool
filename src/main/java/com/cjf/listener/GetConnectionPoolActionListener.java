@@ -1,5 +1,6 @@
 package com.cjf.listener;
 
+import com.cjf.MainForm;
 import com.cjf.dialog.MyDialog;
 import com.cjf.util.ConnectionPoolImpl1;
 import com.cjf.util.ConnectionPoolImpl2;
@@ -20,24 +21,18 @@ import java.util.List;
 public class GetConnectionPoolActionListener implements ActionListener {
     private JComboBox url1;
     private JComboBox url2;
-    private ConnectionPoolImpl1 connectionPool1;
-    private ConnectionPoolImpl2 connectionPool2;
     private JTextField userName2;
     private JTextField userName1;
     private JPasswordField password1;
     private JPasswordField password2;
-    private List<String> url_item;
 
-    public GetConnectionPoolActionListener(JComboBox url1, JComboBox url2, ConnectionPoolImpl1 connectionPool1, ConnectionPoolImpl2 connectionPool2, JTextField userName2, JTextField userName1, JPasswordField password1, JPasswordField password2, List<String> url_item) {
+    public GetConnectionPoolActionListener(JComboBox url1, JComboBox url2, JTextField userName2, JTextField userName1, JPasswordField password1, JPasswordField password2) {
         this.url1 = url1;
         this.url2 = url2;
-        this.connectionPool1 = connectionPool1;
-        this.connectionPool2 = connectionPool2;
         this.userName2 = userName2;
         this.userName1 = userName1;
         this.password1 = password1;
         this.password2 = password2;
-        this.url_item = url_item;
     }
 
     @Override
@@ -45,33 +40,32 @@ public class GetConnectionPoolActionListener implements ActionListener {
 
         System.out.println("连接按钮开始");
         try {
-            String str1 = url1.getToolTipText();
-            String str2 = url2.getToolTipText();
+            String str1 = url1.getSelectedItem().toString();
+            String str2 = url2.getSelectedItem().toString();
 
-            connectionPool1 = new ConnectionPoolImpl1(url1.getToolTipText(), userName1.getText(), password1.getText());
-            connectionPool2 = new ConnectionPoolImpl2(url2.getToolTipText(), userName2.getText(), password2.getText());
-            connectionPool1.init(5);
+            MainForm.connectionPool1 = new ConnectionPoolImpl1(url1.getSelectedItem().toString(), userName1.getText(), password1.getText());
+            MainForm.connectionPool2 = new ConnectionPoolImpl2(url2.getSelectedItem().toString(), userName2.getText(), password2.getText());
+            MainForm.connectionPool1.init(1);
 
             updateUrlItem(str1);
 
+            MainForm.connectionPool2.init(1);
             if (!str1.equals(str2)) {
                 updateUrlItem(str2);
             }
-
-            connectionPool2.init(5);
-            System.out.println(connectionPool1);
-            System.out.println(connectionPool2);
+            System.out.println(MainForm.connectionPool1);
+            System.out.println(MainForm.connectionPool2);
             // 保存历史记录
 
         } catch (Exception exception) {
             new MyDialog(exception.getMessage());
             return;
         }
-        if (connectionPool1 == null) {
+        if (MainForm.connectionPool1 == null) {
             new MyDialog("数据库1获取连接池失败！");
             return;
         }
-        if (connectionPool2 == null) {
+        if (MainForm.connectionPool2 == null) {
             new MyDialog("数据库2获取连接池失败！");
             return;
         }
@@ -81,7 +75,7 @@ public class GetConnectionPoolActionListener implements ActionListener {
 
     private void updateUrlItem(String str1) {
         boolean b = false;
-        for (String x : url_item) {
+        for (String x : MainForm.url_item) {
             if (str1.equals(x)) {
                 b = true;
                 break;
@@ -90,23 +84,23 @@ public class GetConnectionPoolActionListener implements ActionListener {
         if (!b) {
             List<String> list = new ArrayList<>();
             list.add(str1);
-            list.addAll(url_item);
-            url_item = list;
+            list.addAll(MainForm.url_item);
+            MainForm.url_item = list;
             url1.removeAllItems();
             url2.removeAllItems();
-            url_item.forEach(y -> {
+            MainForm.url_item.forEach(y -> {
                 url1.addItem(y);
                 url2.addItem(y);
             });
         } else {
-            url_item.remove(str1);
+            MainForm.url_item.remove(str1);
             List<String> list = new ArrayList<>();
             list.add(str1);
-            list.addAll(url_item);
-            url_item = list;
+            list.addAll(MainForm.url_item);
+            MainForm.url_item = list;
             url1.removeAllItems();
             url2.removeAllItems();
-            url_item.forEach(y -> {
+            MainForm.url_item.forEach(y -> {
                 url1.addItem(y);
                 url2.addItem(y);
             });
@@ -121,7 +115,7 @@ public class GetConnectionPoolActionListener implements ActionListener {
         try {
             fileWriter = new FileWriter(file);
             bufferedWriter = new BufferedWriter(fileWriter);
-            for (String s : url_item) {
+            for (String s : MainForm.url_item) {
                 bufferedWriter.write(s + "\n");
             }
             bufferedWriter.flush();

@@ -28,18 +28,18 @@ import java.util.concurrent.TimeUnit;
 
 public class MainForm {
 
-    private static ConnectionPoolImpl1 connectionPool1;
-    private static ConnectionPoolImpl2 connectionPool2;
-    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(8, 10, 10, TimeUnit.MINUTES, new LinkedBlockingQueue<>(2000000));
-    private static List<String> url_item;
+    public static ConnectionPoolImpl1 connectionPool1;
+    public static ConnectionPoolImpl2 connectionPool2;
+    public static ThreadPoolExecutor executor = new ThreadPoolExecutor(8, 10, 10, TimeUnit.MINUTES, new LinkedBlockingQueue<>(2000000));
+    public static List<String> url_item;
 
     public MainForm() {
-        startButton.addActionListener(new StartCopyActionListener(connectionPool1, connectionPool2, getSql, tableName, executor));
-        cancelButton.addActionListener(new CloseConnectionActionListener(connectionPool1, connectionPool2));
-        connectButton.addActionListener(new GetConnectionPoolActionListener(url1, url2, connectionPool1, connectionPool2, userName2, userName1, password1, password2, url_item));
+        startButton.addActionListener(new StartCopyActionListener(getSql, tableName));
+        cancelButton.addActionListener(new CloseConnectionActionListener());
+        connectButton.addActionListener(new GetConnectionPoolActionListener(url1, url2,  userName2, userName1, password1, password2));
         // 添加弹出菜单侦听器
-        url1.addPopupMenuListener(new UrlPopupMenuListener(url_item, url1, url2));
-        url2.addPopupMenuListener(new UrlPopupMenuListener(url_item, url1, url2));
+        url1.addPopupMenuListener(new UrlPopupMenuListener(url1, url2));
+        url2.addPopupMenuListener(new UrlPopupMenuListener(url1, url2));
 
         //设置下拉框可编辑
         url1.setEditable(true);
