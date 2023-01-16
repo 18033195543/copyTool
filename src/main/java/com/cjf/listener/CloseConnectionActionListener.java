@@ -2,8 +2,6 @@ package com.cjf.listener;
 
 import com.cjf.MainForm;
 import com.cjf.dialog.MyDialog;
-import com.cjf.util.ConnectionPoolImpl1;
-import com.cjf.util.ConnectionPoolImpl2;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -24,14 +22,14 @@ public class CloseConnectionActionListener implements ActionListener {
         outLog.append("关闭连接\n");
         if (MainForm.connectionPool1 != null) {
             try {
-                MainForm.connectionPool1.destory();
+                MainForm.connectionPool1.close();
             } catch (Exception throwables) {
                 throwables.printStackTrace();
             }
         }
         if (MainForm.connectionPool2 != null) {
             try {
-                MainForm.connectionPool2.destory();
+                MainForm.connectionPool2.close();
             } catch (Exception throwables) {
                 throwables.printStackTrace();
             }

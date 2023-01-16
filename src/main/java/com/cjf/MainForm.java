@@ -4,8 +4,7 @@ import com.cjf.listener.CloseConnectionActionListener;
 import com.cjf.listener.GetConnectionPoolActionListener;
 import com.cjf.listener.StartCopyActionListener;
 import com.cjf.listener.UrlPopupMenuListener;
-import com.cjf.util.ConnectionPoolImpl1;
-import com.cjf.util.ConnectionPoolImpl2;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,15 +16,15 @@ import java.util.concurrent.TimeUnit;
 
 public class MainForm {
 
-    public static ConnectionPoolImpl1 connectionPool1;
-    public static ConnectionPoolImpl2 connectionPool2;
+    public static ComboPooledDataSource connectionPool1;
+    public static ComboPooledDataSource connectionPool2;
     public static ThreadPoolExecutor executor = new ThreadPoolExecutor(8, 10, 10, TimeUnit.MINUTES, new LinkedBlockingQueue<>(2000000));
     public static List<String> url_item;
 
     public MainForm() {
         startButton.addActionListener(new StartCopyActionListener(getSql, tableName, outLog));
         cancelButton.addActionListener(new CloseConnectionActionListener(outLog));
-        connectButton.addActionListener(new GetConnectionPoolActionListener(url1, url2,  userName2, userName1, password1, password2));
+        connectButton.addActionListener(new GetConnectionPoolActionListener(url1, url2,  userName2, userName1, password1, password2,outLog));
         // 添加弹出菜单侦听器
         url1.addPopupMenuListener(new UrlPopupMenuListener(url1, url2));
         url2.addPopupMenuListener(new UrlPopupMenuListener(url1, url2));

@@ -3,13 +3,11 @@ package com.cjf.listener;
 import com.cjf.MainForm;
 import com.cjf.dialog.MyDialog;
 import com.cjf.opreationdata.DataOperateService;
-import com.cjf.util.ConnectionPoolImpl1;
-import com.cjf.util.ConnectionPoolImpl2;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.sql.SQLException;
 
 /**
  * 开始拷贝数据按钮监听
@@ -53,9 +51,15 @@ public class StartCopyActionListener implements ActionListener {
 
         DataOperateService dataOperateService = new DataOperateService(getSql.getText(), tableName.getText(),outLog);
         try {
-            dataOperateService.reportLeaning();
-            outLog.append("成功 !\n");
-            new MyDialog("成功 !");
+            new Thread(()->{
+                try {
+                    dataOperateService.reportLeaning();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }).start();
+            outLog.append("开始异步执行 !\n");
+            new MyDialog("开始异步执行 !");
             outLog.setCaretPosition(outLog.getDocument().getLength());
         } catch (Exception exception) {
             new MyDialog(exception.getMessage());

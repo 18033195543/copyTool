@@ -2,11 +2,13 @@ package com.cjf.opreationdata;
 
 
 import com.cjf.MainForm;
+import com.cjf.util.C3p0ConnectionUtil1Impl;
 
 import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,7 +20,7 @@ public class DataOperateService {
     private String tableName;
     private JTextArea outLog;
 
-    public DataOperateService(String outSql, String tableName,JTextArea outLog) {
+    public DataOperateService(String outSql, String tableName, JTextArea outLog) {
         this.outSql = outSql;
         this.tableName = tableName;
         this.outLog = outLog;
@@ -36,19 +38,20 @@ public class DataOperateService {
         }
         int count = 0;
         Integer total = list3.get(0);
-        MainForm.connectionPool1.releaseConnection(connection);
+        C3p0ConnectionUtil1Impl.releaseConnection(connection);
         int split = total / 20000;
         int a = total % 20000;
         if (a != 0) {
             split++;
         }
+        CountDownLatch countDownLatch = new CountDownLatch(split);
         for (int i = 0; i < split; i++) {
             try {
                 TimeUnit.SECONDS.sleep(3);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            ExcutThread excutThread = new ExcutThread(count, count += 20000, outSql, tableName,outLog);
+            ExcutThread excutThread = new ExcutThread(count, count += 20000, outSql, tableName, outLog,countDownLatch);
             MainForm.executor.execute(() -> {
                 try {
                     excutThread.excut();
@@ -57,6 +60,14 @@ public class DataOperateService {
                 }
             });
 
+        }
+        try {
+            countDownLatch.await();
+            outLog.append("结束！\n");
+            outLog.setCaretPosition(outLog.getDocument().getLength());
+            System.out.println("结束！");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
     }

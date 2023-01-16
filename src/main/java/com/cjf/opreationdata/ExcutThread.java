@@ -1,6 +1,8 @@
 package com.cjf.opreationdata;
 
 import com.cjf.MainForm;
+import com.cjf.util.C3p0ConnectionUtil1Impl;
+import com.cjf.util.C3p0ConnectionUtil2Impl;
 
 import javax.swing.*;
 import java.sql.*;
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class ExcutThread {
@@ -16,35 +19,42 @@ public class ExcutThread {
     private String outSql;
     private String tableName;
     private JTextArea outLog;
+    private CountDownLatch countDownLatch;
 
-    public ExcutThread(int a, int b,  String outSql, String tableName,JTextArea outLog) {
+    public ExcutThread(int a, int b,  String outSql, String tableName,JTextArea outLog,CountDownLatch countDownLatch) {
         this.a = a;
         this.b = b;
         this.outSql = outSql;
         this.tableName = tableName;
         this.outLog = outLog;
+        this.countDownLatch = countDownLatch;
     }
 
     public void excut() throws SQLException {
-        Connection connection = MainForm.connectionPool1.getConnection();
-        String sql = "SELECT * FROM  ( select rownum n,e.* from ( " + outSql + " ) e) where n > ?  and n <= ?";
-        System.out.println(sql + " 参数：->" + a + "->" + b);
-        outLog.append(sql + " 参数：->" + a + "->" + b +"\n");
-        outLog.setCaretPosition(outLog.getDocument().getLength());
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setInt(1, a);
-        preparedStatement.setInt(2, b);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        try {
+            Connection connection = MainForm.connectionPool1.getConnection();
+            String sql = "SELECT * FROM  ( select rownum n,e.* from ( " + outSql + " ) e) where n > ?  and n <= ?";
+            System.out.println(sql + " 参数：->" + a + "->" + b);
+            outLog.append(sql + " 参数：->" + a + "->" + b +"\n");
+            outLog.setCaretPosition(outLog.getDocument().getLength());
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, a);
+            preparedStatement.setInt(2, b);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-        // 解析结果
-        Map<String, Object> stringObjectMap = resolveResult(resultSet);
-        preparedStatement.close();
-        MainForm.connectionPool1.releaseConnection(connection);
+            // 解析结果
+            Map<String, Object> stringObjectMap = resolveResult(resultSet);
+            preparedStatement.close();
+            C3p0ConnectionUtil1Impl.releaseConnection(connection);
 
-        List<Map> list = (List<Map>) stringObjectMap.get("resultList");
-        List<String> list1 = (List<String>) stringObjectMap.get("columnNames");
+            List<Map> list = (List<Map>) stringObjectMap.get("resultList");
+            List<String> list1 = (List<String>) stringObjectMap.get("columnNames");
 
-        insertDate( tableName, list1, list);
+            insertDate( tableName, list1, list);
+        }finally {
+            countDownLatch.countDown();
+        }
+
     }
 
     /**
@@ -86,7 +96,7 @@ public class ExcutThread {
     }
 
 
-    private void insertDate( String tableName, List<String> columns, List<Map> dateRowList) {
+    private void insertDate( String tableName, List<String> columns, List<Map> dateRowList) throws SQLException {
         columns.remove(0);
         String insertSql = "insert into " + tableName + " ( ";
         String collect = columns.stream().collect(Collectors.joining(","));
@@ -125,9 +135,9 @@ public class ExcutThread {
                     throwables.printStackTrace();
                 }
             }
-            MainForm.connectionPool2.releaseConnection(connection);
+            C3p0ConnectionUtil2Impl.releaseConnection(connection);
         } finally {
-            MainForm.connectionPool2.releaseConnection(connection);
+            C3p0ConnectionUtil2Impl.releaseConnection(connection);
 
         }
 

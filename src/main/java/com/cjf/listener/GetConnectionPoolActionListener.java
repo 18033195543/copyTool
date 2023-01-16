@@ -2,8 +2,8 @@ package com.cjf.listener;
 
 import com.cjf.MainForm;
 import com.cjf.dialog.MyDialog;
-import com.cjf.util.ConnectionPoolImpl1;
-import com.cjf.util.ConnectionPoolImpl2;
+import com.cjf.util.C3p0ConnectionUtil1Impl;
+import com.cjf.util.C3p0ConnectionUtil2Impl;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -25,33 +25,37 @@ public class GetConnectionPoolActionListener implements ActionListener {
     private JTextField userName1;
     private JPasswordField password1;
     private JPasswordField password2;
+    private JTextArea outLog;
 
-    public GetConnectionPoolActionListener(JComboBox url1, JComboBox url2, JTextField userName2, JTextField userName1, JPasswordField password1, JPasswordField password2) {
+    public GetConnectionPoolActionListener(JComboBox url1, JComboBox url2, JTextField userName2,
+                                           JTextField userName1, JPasswordField password1,
+                                           JPasswordField password2, JTextArea outLog) {
         this.url1 = url1;
         this.url2 = url2;
         this.userName2 = userName2;
         this.userName1 = userName1;
         this.password1 = password1;
         this.password2 = password2;
+        this.outLog = outLog;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         System.out.println("连接按钮开始");
+        outLog.append("连接按钮开始\n");
+        outLog.setCaretPosition(outLog.getDocument().getLength());
         try {
             String str1 = url1.getSelectedItem().toString();
             String str2 = url2.getSelectedItem().toString();
 
-            MainForm.connectionPool1 = new ConnectionPoolImpl1(url1.getSelectedItem().toString(), userName1.getText(), password1.getText());
-            MainForm.connectionPool2 = new ConnectionPoolImpl2(url2.getSelectedItem().toString(), userName2.getText(), password2.getText());
-            MainForm.connectionPool1.init(5);
-
-            updateUrlItem(str1);
-
-            MainForm.connectionPool2.init(5);
+            C3p0ConnectionUtil1Impl c3p0ConnectionUtil1 = new C3p0ConnectionUtil1Impl(url1.getSelectedItem().toString(), userName1.getText(), password1.getText(), 5);
+            MainForm.connectionPool1 = c3p0ConnectionUtil1.getDataSource();
+            C3p0ConnectionUtil2Impl c3p0ConnectionUtil2 = new C3p0ConnectionUtil2Impl(url2.getSelectedItem().toString(), userName2.getText(), password2.getText(), 5);
+            MainForm.connectionPool2 = c3p0ConnectionUtil2.getDataSource();
+            updateUrlItem(str1, 1);
             if (!str1.equals(str2)) {
-                updateUrlItem(str2);
+                updateUrlItem(str2, 2);
             }
             System.out.println(MainForm.connectionPool1);
             System.out.println(MainForm.connectionPool2);
@@ -59,21 +63,29 @@ public class GetConnectionPoolActionListener implements ActionListener {
 
         } catch (Exception exception) {
             new MyDialog(exception.getMessage());
+            outLog.append(exception.getMessage() + "\n");
+            outLog.setCaretPosition(outLog.getDocument().getLength());
             return;
         }
         if (MainForm.connectionPool1 == null) {
             new MyDialog("数据库1获取连接池失败！");
+            outLog.append("数据库1获取连接池失败！\n");
+            outLog.setCaretPosition(outLog.getDocument().getLength());
             return;
         }
         if (MainForm.connectionPool2 == null) {
             new MyDialog("数据库2获取连接池失败！");
+            outLog.append("数据库2获取连接池失败！\n");
+            outLog.setCaretPosition(outLog.getDocument().getLength());
             return;
         }
 
         new MyDialog("数据库获取连接池成功！");
+        outLog.append("数据库获取连接池成功！\n");
+        outLog.setCaretPosition(outLog.getDocument().getLength());
     }
 
-    private void updateUrlItem(String str1) {
+    private void updateUrlItem(String str1, int flag) {
         boolean b = false;
         for (String x : MainForm.url_item) {
             if (str1.equals(x)) {
@@ -98,10 +110,16 @@ public class GetConnectionPoolActionListener implements ActionListener {
             list.add(str1);
             list.addAll(MainForm.url_item);
             MainForm.url_item = list;
-            url1.removeAllItems();
+            if (flag == 1) {
+                url1.removeAllItems();
+            }else{
+                url1.addItem(str1);
+            }
             url2.removeAllItems();
             MainForm.url_item.forEach(y -> {
-                url1.addItem(y);
+                if (flag == 1) {
+                    url1.addItem(y);
+                }
                 url2.addItem(y);
             });
         }
