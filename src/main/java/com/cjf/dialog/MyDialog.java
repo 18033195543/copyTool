@@ -11,7 +11,8 @@ public class MyDialog extends JDialog {
         this.msg = msg;
         this.setBounds(400, 200, 200, 100);
         this.setVisible(true);
-        this.setTitle("确认连接");
+        this.setTitle("提示消息");
+        this.setLocationRelativeTo(null);
         Container contentPane = this.getContentPane();
         contentPane.setLayout(null);
 

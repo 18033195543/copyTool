@@ -19,7 +19,7 @@ public class ExcutThread {
     private String outSql;
     private String tableName;
     private JTextArea outLog;
-    private CountDownLatch countDownLatch;
+    public static CountDownLatch countDownLatch;
 
     public ExcutThread(int a, int b,  String outSql, String tableName,JTextArea outLog,CountDownLatch countDownLatch) {
         this.a = a;

@@ -4,6 +4,7 @@ import com.cjf.MainForm;
 import com.cjf.dialog.MyDialog;
 import com.cjf.util.C3p0ConnectionUtil1Impl;
 import com.cjf.util.C3p0ConnectionUtil2Impl;
+import com.mchange.v2.lang.StringUtils;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -41,29 +42,72 @@ public class GetConnectionPoolActionListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         System.out.println("连接按钮开始");
         outLog.append("连接按钮开始\n");
         outLog.setCaretPosition(outLog.getDocument().getLength());
         try {
-            String str1 = url1.getSelectedItem().toString();
-            String str2 = url2.getSelectedItem().toString();
+            String url1Text = url1.getSelectedItem() == null ? "" : url1.getSelectedItem().toString();
+            if (!StringUtils.nonEmptyString(url1Text)){
+                new MyDialog("url1不能为空!");
+                outLog.append("url1不能为空!" + "\n");
+                outLog.setCaretPosition(outLog.getDocument().getLength());
+                return;
+            }
 
-            C3p0ConnectionUtil1Impl c3p0ConnectionUtil1 = new C3p0ConnectionUtil1Impl(url1.getSelectedItem().toString(), userName1.getText(), password1.getText(), 5);
+            String userNameText1 = userName1.getText();
+            if (!StringUtils.nonEmptyString(userNameText1)){
+                new MyDialog("用户名1不能为空!");
+                outLog.append("用户名1不能为空!" + "\n");
+                outLog.setCaretPosition(outLog.getDocument().getLength());
+                return;
+            }
+
+            String passwordText1 = password1.getText();
+            if (!StringUtils.nonEmptyString(passwordText1)){
+                new MyDialog("密码1不能为空!");
+                outLog.append("密码1不能为空!" + "\n");
+                outLog.setCaretPosition(outLog.getDocument().getLength());
+                return;
+            }
+
+            String url2Text = url2.getSelectedItem() == null ? "" : url2.getSelectedItem().toString();
+            if (!StringUtils.nonEmptyString(url2Text)){
+                new MyDialog("url2不能为空!");
+                outLog.append("url2不能为空!" + "\n");
+                outLog.setCaretPosition(outLog.getDocument().getLength());
+                return;
+            }
+            String userNameText2 = userName2.getText();
+            if (!StringUtils.nonEmptyString(userNameText2)){
+                new MyDialog("用户名2不能为空!");
+                outLog.append("用户名2不能为空!" + "\n");
+                outLog.setCaretPosition(outLog.getDocument().getLength());
+                return;
+            }
+
+            String passwordText2 = password2.getText();
+            if (!StringUtils.nonEmptyString(passwordText2)){
+                new MyDialog("密码2不能为空!");
+                outLog.append("密码2不能为空!" + "\n");
+                outLog.setCaretPosition(outLog.getDocument().getLength());
+                return;
+            }
+
+            C3p0ConnectionUtil1Impl c3p0ConnectionUtil1 = new C3p0ConnectionUtil1Impl(url1Text, userNameText1, passwordText1, 5);
             MainForm.connectionPool1 = c3p0ConnectionUtil1.getDataSource();
-            C3p0ConnectionUtil2Impl c3p0ConnectionUtil2 = new C3p0ConnectionUtil2Impl(url2.getSelectedItem().toString(), userName2.getText(), password2.getText(), 5);
+            C3p0ConnectionUtil2Impl c3p0ConnectionUtil2 = new C3p0ConnectionUtil2Impl(url2Text, userNameText2, passwordText2, 5);
             MainForm.connectionPool2 = c3p0ConnectionUtil2.getDataSource();
-            updateUrlItem(str1, 1);
-            if (!str1.equals(str2)) {
-                updateUrlItem(str2, 2);
+            updateUrlItem(url1Text, 1);
+            if (!url1Text.equals(url2Text)) {
+                updateUrlItem(url2Text, 2);
             }
             System.out.println(MainForm.connectionPool1);
             System.out.println(MainForm.connectionPool2);
             // 保存历史记录
 
         } catch (Exception exception) {
-            new MyDialog(exception.getMessage());
-            outLog.append(exception.getMessage() + "\n");
+            new MyDialog(exception.toString());
+            outLog.append(exception.toString() + "\n");
             outLog.setCaretPosition(outLog.getDocument().getLength());
             return;
         }
