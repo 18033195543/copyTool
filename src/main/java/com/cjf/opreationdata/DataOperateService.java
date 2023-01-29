@@ -28,7 +28,7 @@ public class DataOperateService {
 
     public void reportLeaning() throws SQLException {
         Connection connection = MainForm.connectionPool1.getConnection();
-        String countSql = "select count(*) co from ( " + outSql + " ) ";
+        String countSql = "select count(*) co from ( " + outSql + " ) a ";
         PreparedStatement preparedStatement1 = connection.prepareStatement(countSql);
         ResultSet countResult = preparedStatement1.executeQuery();
 
@@ -51,10 +51,17 @@ public class DataOperateService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            ExcutThread excutThread = new ExcutThread(count, count += 20000, outSql, tableName, outLog,countDownLatch);
+            ExcutThread excutThread = null;
+            if (MainForm.isGj && "mysql".equals(MainForm.dbType)) {
+                excutThread = new ExcutThread(count, 20000, outSql, tableName, outLog, countDownLatch);
+                count += 20000;
+            } else if (MainForm.isGj && "oracle".equals(MainForm.dbType)) {
+                excutThread = new ExcutThread(count, count += 20000, outSql, tableName, outLog, countDownLatch);
+            }
+            ExcutThread finalExcutThread = excutThread;
             MainForm.executor.execute(() -> {
                 try {
-                    excutThread.excut();
+                    finalExcutThread.excut();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -31,17 +31,23 @@
       <artifactId>forms</artifactId>
       <version>1.2.1</version>
     </dependency>
-    <dependency>
-      <groupId>com.oracle</groupId>
-      <artifactId>oracle-jdbc-driver</artifactId>
-      <version>11.2.0</version>
-      <scope>compile</scope>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>com.oracle</groupId>-->
+<!--      <artifactId>oracle-jdbc-driver</artifactId>-->
+<!--      <version>11.2.0</version>-->
+<!--      <scope>compile</scope>-->
+<!--    </dependency>-->
     <!-- https://mvnrepository.com/artifact/com.mchange/c3p0 -->
     <dependency>
       <groupId>com.mchange</groupId>
       <artifactId>c3p0</artifactId>
       <version>0.9.5.5</version>
+    </dependency>
+    <!-- Mysql驱动包 -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.29</version>
     </dependency>
 
     <dependency>

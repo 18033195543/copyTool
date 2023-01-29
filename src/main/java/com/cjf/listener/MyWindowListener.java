@@ -58,7 +58,9 @@ public class MyWindowListener implements WindowListener {
                 }
             }
             // 关闭线程池
-            MainForm.executor.shutdown();
+            if (MainForm.executor != null) {
+                MainForm.executor.shutdown();
+            }
 
             /**      释放资源     **/
             // 关闭连接池1

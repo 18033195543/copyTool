@@ -15,6 +15,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 获取连接池监听
@@ -27,10 +30,15 @@ public class GetConnectionPoolActionListener implements ActionListener {
     private JPasswordField password1;
     private JPasswordField password2;
     private JTextArea outLog;
+    private JSpinner threadPoolCoreSize;
+    private JSpinner threadPoolMaxSize;
+    private JSpinner connectionPoolSize;
+    private JComboBox databaseType;
 
     public GetConnectionPoolActionListener(JComboBox url1, JComboBox url2, JTextField userName2,
                                            JTextField userName1, JPasswordField password1,
-                                           JPasswordField password2, JTextArea outLog) {
+                                           JPasswordField password2, JTextArea outLog, JSpinner threadPoolCoreSize,
+                                           JSpinner threadPoolMaxSize, JSpinner connectionPoolSize, JComboBox databaseType) {
         this.url1 = url1;
         this.url2 = url2;
         this.userName2 = userName2;
@@ -38,16 +46,27 @@ public class GetConnectionPoolActionListener implements ActionListener {
         this.password1 = password1;
         this.password2 = password2;
         this.outLog = outLog;
+        this.threadPoolCoreSize = threadPoolCoreSize;
+        this.threadPoolMaxSize = threadPoolMaxSize;
+        this.connectionPoolSize = connectionPoolSize;
+        this.databaseType = databaseType;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("连接按钮开始");
+        if (MainForm.isGj) {
+            // 开启了高级模式
+            MainForm.executor = new ThreadPoolExecutor((int) threadPoolCoreSize.getValue(), (int) threadPoolMaxSize.getValue(), 10, TimeUnit.MINUTES, new LinkedBlockingQueue<>(2000000));
+        } else {
+            int i = Runtime.getRuntime().availableProcessors();
+            // 开启了高级模式
+            MainForm.executor = new ThreadPoolExecutor(i + 1, (i + 1) + (i + 1) / 2, 10, TimeUnit.MINUTES, new LinkedBlockingQueue<>(2000000));
+        }
         outLog.append("连接按钮开始\n");
         outLog.setCaretPosition(outLog.getDocument().getLength());
         try {
             String url1Text = url1.getSelectedItem() == null ? "" : url1.getSelectedItem().toString();
-            if (!StringUtils.nonEmptyString(url1Text)){
+            if (!StringUtils.nonEmptyString(url1Text)) {
                 new MyDialog("url1不能为空!");
                 outLog.append("url1不能为空!" + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
@@ -55,7 +74,7 @@ public class GetConnectionPoolActionListener implements ActionListener {
             }
 
             String userNameText1 = userName1.getText();
-            if (!StringUtils.nonEmptyString(userNameText1)){
+            if (!StringUtils.nonEmptyString(userNameText1)) {
                 new MyDialog("用户名1不能为空!");
                 outLog.append("用户名1不能为空!" + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
@@ -63,7 +82,7 @@ public class GetConnectionPoolActionListener implements ActionListener {
             }
 
             String passwordText1 = password1.getText();
-            if (!StringUtils.nonEmptyString(passwordText1)){
+            if (!StringUtils.nonEmptyString(passwordText1)) {
                 new MyDialog("密码1不能为空!");
                 outLog.append("密码1不能为空!" + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
@@ -71,14 +90,14 @@ public class GetConnectionPoolActionListener implements ActionListener {
             }
 
             String url2Text = url2.getSelectedItem() == null ? "" : url2.getSelectedItem().toString();
-            if (!StringUtils.nonEmptyString(url2Text)){
+            if (!StringUtils.nonEmptyString(url2Text)) {
                 new MyDialog("url2不能为空!");
                 outLog.append("url2不能为空!" + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
                 return;
             }
             String userNameText2 = userName2.getText();
-            if (!StringUtils.nonEmptyString(userNameText2)){
+            if (!StringUtils.nonEmptyString(userNameText2)) {
                 new MyDialog("用户名2不能为空!");
                 outLog.append("用户名2不能为空!" + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
@@ -86,16 +105,23 @@ public class GetConnectionPoolActionListener implements ActionListener {
             }
 
             String passwordText2 = password2.getText();
-            if (!StringUtils.nonEmptyString(passwordText2)){
+            if (!StringUtils.nonEmptyString(passwordText2)) {
                 new MyDialog("密码2不能为空!");
                 outLog.append("密码2不能为空!" + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
                 return;
             }
 
-            C3p0ConnectionUtil1Impl c3p0ConnectionUtil1 = new C3p0ConnectionUtil1Impl(url1Text, userNameText1, passwordText1, 5);
+            C3p0ConnectionUtil1Impl c3p0ConnectionUtil1 = null;
+            C3p0ConnectionUtil2Impl c3p0ConnectionUtil2 = null;
+            if (MainForm.isGj && connectionPoolSize.getValue() != null) {
+                c3p0ConnectionUtil1 = new C3p0ConnectionUtil1Impl(url1Text, userNameText1, passwordText1, (int) connectionPoolSize.getValue(),databaseType);
+                c3p0ConnectionUtil2 = new C3p0ConnectionUtil2Impl(url2Text, userNameText2, passwordText2, (int) connectionPoolSize.getValue(),databaseType);
+            } else {
+                c3p0ConnectionUtil1 = new C3p0ConnectionUtil1Impl(url1Text, userNameText1, passwordText1, 5, databaseType);
+                c3p0ConnectionUtil2 = new C3p0ConnectionUtil2Impl(url2Text, userNameText2, passwordText2, 5, databaseType);
+            }
             MainForm.connectionPool1 = c3p0ConnectionUtil1.getDataSource();
-            C3p0ConnectionUtil2Impl c3p0ConnectionUtil2 = new C3p0ConnectionUtil2Impl(url2Text, userNameText2, passwordText2, 5);
             MainForm.connectionPool2 = c3p0ConnectionUtil2.getDataSource();
             updateUrlItem(url1Text, 1);
             if (!url1Text.equals(url2Text)) {
@@ -156,7 +182,7 @@ public class GetConnectionPoolActionListener implements ActionListener {
             MainForm.url_item = list;
             if (flag == 1) {
                 url1.removeAllItems();
-            }else{
+            } else {
                 url1.addItem(str1);
             }
             url2.removeAllItems();
