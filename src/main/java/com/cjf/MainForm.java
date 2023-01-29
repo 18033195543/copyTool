@@ -1,30 +1,24 @@
 package com.cjf;
 
-import com.cjf.dialog.MyDialog;
 import com.cjf.listener.*;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class MainForm {
 
     public static ComboPooledDataSource connectionPool1;
     public static ComboPooledDataSource connectionPool2;
-    public static ThreadPoolExecutor executor = new ThreadPoolExecutor(8, 10, 10, TimeUnit.MINUTES, new LinkedBlockingQueue<>(2000000));
+    public static ThreadPoolExecutor executor;
+    public static String dbType = "oracle";
     public static List<String> url_item;
+    // 判断是否打开高级模式
+    public static boolean isGj;
 
     public MainForm() {
         JMenu jMenu = new JMenu("文件");
@@ -35,11 +29,13 @@ public class MainForm {
         menuBar.add(jMenu);
         startButton.addActionListener(new StartCopyActionListener(getSql, tableName, outLog));
         cancelButton.addActionListener(new CloseConnectionActionListener(outLog));
-        connectButton.addActionListener(new GetConnectionPoolActionListener(url1, url2, userName2, userName1, password1, password2, outLog));
+        connectButton.addActionListener(new GetConnectionPoolActionListener(url1, url2, userName2, userName1, password1, password2, outLog,threadPoolCoreSize,threadPoolMaxSize,connectionPoolSize,databaseType));
         // 添加弹出菜单侦听器
         url1.addPopupMenuListener(new UrlPopupMenuListener(url1, url2));
         url2.addPopupMenuListener(new UrlPopupMenuListener(url1, url2));
-
+//        url1.setPreferredSize(new Dimension(10,20));
+        connectInfo.setSize(100,200);
+        // 监听是否开启高级模式
         advancedMode.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -47,26 +43,31 @@ public class MainForm {
                     // 可编辑
                     gjLabelPanel.setVisible(true);
                     gjValuePanel.setVisible(true);
+                    isGj = true;
                 }else{
                     // 不可编辑
                     gjLabelPanel.setVisible(false);
                     gjValuePanel.setVisible(false);
+                    isGj = false;
                 }
 
             }
         });
 
         // 设置默认值
-        threadPoolSize.setValue(1);
-        threadPoolSize.addChangeListener(new JSpinnerChangeListener("线程数",outLog));
+        threadPoolCoreSize.setValue(1);
+        threadPoolCoreSize.addChangeListener(new JSpinnerChangeListener("核心线程数",outLog));
+        threadPoolMaxSize.setValue(1);
+        threadPoolMaxSize.addChangeListener(new JSpinnerChangeListener("最大线程数",outLog));
         // 设置默认值
         connectionPoolSize.setValue(1);
         connectionPoolSize.addChangeListener(new JSpinnerChangeListener("连接数",outLog));
+        databaseType.addItemListener(new DataBaseTypeItemListener());
 
         //设置下拉框可编辑
         url1.setEditable(true);
         url2.setEditable(true);
-        ((JSpinner.DefaultEditor)threadPoolSize.getEditor()).getTextField().setEditable(false);
+        ((JSpinner.DefaultEditor) threadPoolCoreSize.getEditor()).getTextField().setEditable(false);
         ((JSpinner.DefaultEditor)connectionPoolSize.getEditor()).getTextField().setEditable(false);
         gjLabelPanel.setVisible(false);
         gjValuePanel.setVisible(false);
@@ -128,7 +129,7 @@ public class MainForm {
     private JComboBox url2;
     private JTextField userName2;
     private JPasswordField password1;
-    private JSpinner threadPoolSize;
+    private JSpinner threadPoolCoreSize;
     private JSpinner connectionPoolSize;
     private JComboBox databaseType;
     private JTextArea outLog;
@@ -136,6 +137,7 @@ public class MainForm {
     private JPanel gjLabelPanel;
     private JPanel gjValuePanel;
     private JMenuBar menuBar;
+    private JSpinner threadPoolMaxSize;
 
 
     private void createUIComponents() {

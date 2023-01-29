@@ -17,9 +17,13 @@ public class CloseConnectionActionListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
-        System.out.println("关闭连接");
+        outLog.append("关闭线程池\n");
+        outLog.setCaretPosition(outLog.getDocument().getLength());
+        if (MainForm.executor != null) {
+            MainForm.executor.shutdown();
+        }
         outLog.append("关闭连接\n");
+        outLog.setCaretPosition(outLog.getDocument().getLength());
         if (MainForm.connectionPool1 != null) {
             try {
                 MainForm.connectionPool1.close();
@@ -35,6 +39,7 @@ public class CloseConnectionActionListener implements ActionListener {
             }
         }
         outLog.append("连接池关闭成功！\n");
+        outLog.setCaretPosition(outLog.getDocument().getLength());
         new MyDialog("连接池关闭成功！");
     }
 }

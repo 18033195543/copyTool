@@ -3,6 +3,7 @@ package com.cjf.opreationdata;
 import com.cjf.MainForm;
 import com.cjf.util.C3p0ConnectionUtil1Impl;
 import com.cjf.util.C3p0ConnectionUtil2Impl;
+import sun.applet.Main;
 
 import javax.swing.*;
 import java.sql.*;
@@ -21,7 +22,7 @@ public class ExcutThread {
     private JTextArea outLog;
     public static CountDownLatch countDownLatch;
 
-    public ExcutThread(int a, int b,  String outSql, String tableName,JTextArea outLog,CountDownLatch countDownLatch) {
+    public ExcutThread(int a, int b, String outSql, String tableName, JTextArea outLog, CountDownLatch countDownLatch) {
         this.a = a;
         this.b = b;
         this.outSql = outSql;
@@ -33,9 +34,15 @@ public class ExcutThread {
     public void excut() throws SQLException {
         try {
             Connection connection = MainForm.connectionPool1.getConnection();
-            String sql = "SELECT * FROM  ( select rownum n,e.* from ( " + outSql + " ) e) where n > ?  and n <= ?";
+            String sql = null;
+            if (MainForm.isGj && "mysql".equals(MainForm.dbType)) {
+                sql = "select * from (" + outSql + ") a limit ?, ?";
+            } else if (MainForm.isGj && "oracle".equals(MainForm.dbType)) {
+                sql = "select * from  ( select rownum n,e.* from ( " + outSql + " ) e) where n > ?  and n <= ?";
+            }
+
             System.out.println(sql + " 参数：->" + a + "->" + b);
-            outLog.append(sql + " 参数：->" + a + "->" + b +"\n");
+            outLog.append(sql + " 参数：->" + a + "->" + b + "\n");
             outLog.setCaretPosition(outLog.getDocument().getLength());
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, a);
@@ -50,8 +57,8 @@ public class ExcutThread {
             List<Map> list = (List<Map>) stringObjectMap.get("resultList");
             List<String> list1 = (List<String>) stringObjectMap.get("columnNames");
 
-            insertDate( tableName, list1, list);
-        }finally {
+            insertDate(tableName, list1, list);
+        } finally {
             countDownLatch.countDown();
         }
 
@@ -96,8 +103,10 @@ public class ExcutThread {
     }
 
 
-    private void insertDate( String tableName, List<String> columns, List<Map> dateRowList) throws SQLException {
-        columns.remove(0);
+    private void insertDate(String tableName, List<String> columns, List<Map> dateRowList) throws SQLException {
+        if (MainForm.isGj && "oracle".equals(MainForm.dbType)) {
+            columns.remove(0);
+        }
         String insertSql = "insert into " + tableName + " ( ";
         String collect = columns.stream().collect(Collectors.joining(","));
         insertSql += collect;
@@ -120,8 +129,8 @@ public class ExcutThread {
                 if (count % 1000 == 0 || count == dateRowList.size()) {
                     preparedStatement.executeBatch();
                     preparedStatement.clearBatch();
-                    System.out.println(Thread.currentThread().getName()+"---->"+count);
-                    outLog.append(Thread.currentThread().getName()+"---->"+count+"\n");
+                    System.out.println(Thread.currentThread().getName() + "---->" + count);
+                    outLog.append(Thread.currentThread().getName() + "---->" + count + "\n");
                     outLog.setCaretPosition(outLog.getDocument().getLength());
                 }
             }
