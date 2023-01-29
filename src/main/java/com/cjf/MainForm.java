@@ -21,12 +21,18 @@ public class MainForm {
     public static boolean isGj;
 
     public MainForm() {
-        JMenu jMenu = new JMenu("文件");
-        JMenuItem jMenuItem = new JMenuItem("上传");
-        JMenuItem jMenuItem1 = new JMenuItem("下载");
-        jMenu.add(jMenuItem);
-        jMenu.add(jMenuItem1);
-        menuBar.add(jMenu);
+        JMenu file = new JMenu("文件");
+        JMenuItem sqlFile = new JMenuItem("上传sql文件导入数据");
+        JMenuItem csvFile = new JMenuItem("上传csv文件导入数据");
+        JMenuItem exclFile = new JMenuItem("上传excl文件导入数据");
+        file.add(sqlFile);
+        file.add(csvFile);
+        file.add(exclFile);
+        JMenu aboutUs = new JMenu("Help");
+        JMenuItem about = new JMenuItem("About");
+        aboutUs.add(about);
+        menuBar.add(file);
+        menuBar.add(aboutUs);
         startButton.addActionListener(new StartCopyActionListener(getSql, tableName, outLog));
         cancelButton.addActionListener(new CloseConnectionActionListener(outLog));
         connectButton.addActionListener(new GetConnectionPoolActionListener(url1, url2, userName2, userName1, password1, password2, outLog,threadPoolCoreSize,threadPoolMaxSize,connectionPoolSize,databaseType));
