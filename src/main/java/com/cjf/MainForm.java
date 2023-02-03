@@ -1,12 +1,18 @@
 package com.cjf;
 
 import com.cjf.listener.*;
+import com.jgoodies.forms.layout.FormLayout;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -21,26 +27,21 @@ public class MainForm {
     public static boolean isGj;
 
     public MainForm() {
-        JMenu file = new JMenu("文件");
-        JMenuItem sqlFile = new JMenuItem("上传sql文件导入数据");
-        JMenuItem csvFile = new JMenuItem("上传csv文件导入数据");
-        JMenuItem exclFile = new JMenuItem("上传excl文件导入数据");
-        file.add(sqlFile);
-        file.add(csvFile);
-        file.add(exclFile);
-        JMenu aboutUs = new JMenu("Help");
-        JMenuItem about = new JMenuItem("About");
-        aboutUs.add(about);
-        menuBar.add(file);
-        menuBar.add(aboutUs);
         startButton.addActionListener(new StartCopyActionListener(getSql, tableName, outLog));
         cancelButton.addActionListener(new CloseConnectionActionListener(outLog));
         connectButton.addActionListener(new GetConnectionPoolActionListener(url1, url2, userName2, userName1, password1, password2, outLog,threadPoolCoreSize,threadPoolMaxSize,connectionPoolSize,databaseType));
+        if (MainForm.url_item == null) {
+            MainForm.url_item = init();
+            MainForm.url_item.forEach(x -> {
+                url1.addItem(x);
+                url2.addItem(x);
+            });
+        }
         // 添加弹出菜单侦听器
-        url1.addPopupMenuListener(new UrlPopupMenuListener(url1, url2));
-        url2.addPopupMenuListener(new UrlPopupMenuListener(url1, url2));
-//        url1.setPreferredSize(new Dimension(10,20));
-        connectInfo.setSize(100,200);
+        url1 = new JComboBox(url_item.toArray());
+        url1.setSelectedIndex(0);
+        url2 = new JComboBox(url_item.toArray());
+        url2.setSelectedIndex(0);
         // 监听是否开启高级模式
         advancedMode.addItemListener(new ItemListener() {
             @Override
@@ -74,50 +75,39 @@ public class MainForm {
         url1.setEditable(true);
         url2.setEditable(true);
         ((JSpinner.DefaultEditor) threadPoolCoreSize.getEditor()).getTextField().setEditable(false);
+        ((JSpinner.DefaultEditor) threadPoolMaxSize.getEditor()).getTextField().setEditable(false);
         ((JSpinner.DefaultEditor)connectionPoolSize.getEditor()).getTextField().setEditable(false);
         gjLabelPanel.setVisible(false);
         gjValuePanel.setVisible(false);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater ( new Runnable ()
-        {
-            @Override
-            public void run ()
-            {
-               // 添加皮肤
-                try {
-                    UIManager.setLookAndFeel ( "com.alee.laf.WebLookAndFeel" );
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedLookAndFeelException e) {
-                    e.printStackTrace();
-                }
-
-                JFrame frame = new JFrame("MainForm");
-                MainForm mainForm = new MainForm();
-                frame.setContentPane(mainForm.mainForm);
-                frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                frame.setPreferredSize(new Dimension(1000, 700));
-                // 设置坐标
-                Toolkit toolkit = Toolkit.getDefaultToolkit();
-                int x = (int) (toolkit.getScreenSize().getWidth() - 1000) / 2;
-                int y = (int) (toolkit.getScreenSize().getHeight() - 700) / 2;
-                frame.setLocation(x, y);
-
-                frame.pack();
-                frame.setVisible(true);
-                frame.addWindowListener(new MyWindowListener(frame));
+    private List<String> init() {
+        File file = new File(System.getProperty("user.dir") + "\\src\\main\\resources\\url.txt");
+        FileReader fileReader = null;
+        List<String> list = null;
+        BufferedReader bufferedReader = null;
+        try {
+            fileReader = new FileReader(file);
+            bufferedReader = new BufferedReader(fileReader);
+            list = new ArrayList<>();
+            String b;
+            while ((b = bufferedReader.readLine()) != null) {
+                list.add(b);
             }
-        } );
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
-
+        return list;
     }
-
 
     private JPanel mainForm;
     private JButton connectButton;
@@ -142,9 +132,12 @@ public class MainForm {
     private JComboBox advancedMode;
     private JPanel gjLabelPanel;
     private JPanel gjValuePanel;
-    private JMenuBar menuBar;
     private JSpinner threadPoolMaxSize;
+    private JPanel copyPanel;
 
+    public JPanel getMainForm() {
+        return mainForm;
+    }
 
     private void createUIComponents() {
     }

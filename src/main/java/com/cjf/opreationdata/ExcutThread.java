@@ -3,7 +3,6 @@ package com.cjf.opreationdata;
 import com.cjf.MainForm;
 import com.cjf.util.C3p0ConnectionUtil1Impl;
 import com.cjf.util.C3p0ConnectionUtil2Impl;
-import sun.applet.Main;
 
 import javax.swing.*;
 import java.sql.*;
