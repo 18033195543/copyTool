@@ -10,6 +10,7 @@ public class FileImportForm {
     private JButton chooseSqlFileButton;
     private JPanel logPanel;
     private JTextArea sqlOutLog;
+    private JComboBox comboBox1;
 
 
     public JPanel getMainForm() {

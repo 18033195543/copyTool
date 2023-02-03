@@ -24,9 +24,9 @@ public class MyApp extends JFrame implements ActionListener {
         menuBar = new JMenuBar();
         // 添加文件菜单
         menu = new JMenu("文件");
-        dbCopy = new JMenuItem("不同数据库导入数据");
+        dbCopy = new JMenuItem("数据库之间导入数据");
         dbCopy.addActionListener(this);
-        sqlFile = new JMenuItem("上传sql文件导入数据");
+        sqlFile = new JMenuItem("上传文件导入数据");
         sqlFile.addActionListener(this);
         menu.add(dbCopy);
         menu.add(sqlFile);
