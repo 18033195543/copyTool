@@ -98,8 +98,8 @@ public class MyApp extends JFrame implements ActionListener {
                 frame.pack();
                 frame.setVisible(true);
                 frame.addWindowListener(new MyWindowListener(frame));
-                Image image = Toolkit.getDefaultToolkit().getImage(frame.getClass().getResource("img\\identification.png"));
-                frame.setIconImage(image);
+//                Image image = Toolkit.getDefaultToolkit().getImage(frame.getClass().getResource("img\\identification.png"));
+//                frame.setIconImage(image);
 
             }
         });

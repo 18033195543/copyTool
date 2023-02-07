@@ -198,6 +198,7 @@
                   </grid>
                 </constraints>
                 <properties>
+                  <icon value="img/closeConnection.png"/>
                   <text value="关闭连接"/>
                 </properties>
               </component>

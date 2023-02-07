@@ -439,7 +439,7 @@
                 </constraints>
                 <properties>
                   <icon value="img/connection.png"/>
-                  <text value="连接"/>
+                  <text value="获取连接"/>
                 </properties>
               </component>
               <component id="d26e7" class="javax.swing.JButton" binding="startButton">
@@ -448,7 +448,7 @@
                 </constraints>
                 <properties>
                   <icon value="img/start.png"/>
-                  <text value="开始"/>
+                  <text value="开始拷贝"/>
                 </properties>
               </component>
               <component id="6bed4" class="javax.swing.JButton" binding="cancelButton">
@@ -456,6 +456,7 @@
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <icon value="img/closeConnection.png"/>
                   <text value="关闭连接"/>
                 </properties>
               </component>
