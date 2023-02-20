@@ -231,7 +231,7 @@
               <color color="-16737844"/>
             </border>
             <children>
-              <component id="eb5bb" class="javax.swing.JTextArea" binding="sqlOutLog">
+              <component id="eb5bb" class="javax.swing.JTextArea" binding="outLog">
                 <constraints/>
                 <properties/>
               </component>

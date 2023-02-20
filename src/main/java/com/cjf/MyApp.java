@@ -1,7 +1,7 @@
 package com.cjf;
 
 import com.alee.extended.layout.TableLayout;
-import com.cjf.listener.MyWindowListener;
+import com.cjf.listener.mainImport.MyWindowListener;
 
 import javax.swing.*;
 import java.awt.*;
