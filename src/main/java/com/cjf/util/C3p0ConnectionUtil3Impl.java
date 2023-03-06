@@ -1,6 +1,5 @@
 package com.cjf.util;
 
-import com.cjf.MainForm;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import javax.swing.*;
@@ -8,7 +7,7 @@ import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class C3p0ConnectionUtil2Impl {
+public class C3p0ConnectionUtil3Impl {
 
     private static String url;
     private static String username;
@@ -16,7 +15,7 @@ public class C3p0ConnectionUtil2Impl {
     private static JComboBox databaseType;
     private static int intiConnectionNum = 1;
 
-    public C3p0ConnectionUtil2Impl(String url, String username, String password, int intiConnectionNum, JComboBox databaseType) throws SQLException {
+    public C3p0ConnectionUtil3Impl(String url, String username, String password, int intiConnectionNum, JComboBox databaseType) throws SQLException {
         this.url = url;
         this.username = username;
         this.password = password;
@@ -27,9 +26,9 @@ public class C3p0ConnectionUtil2Impl {
 
     public ComboPooledDataSource getDataSource() throws PropertyVetoException, SQLException {
         ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
-        if (MainForm.isGj && "mysql".equals(databaseType.getSelectedItem())) {
+        if ("mysql".equals(databaseType.getSelectedItem())) {
             comboPooledDataSource.setDriverClass("com.mysql.cj.jdbc.Driver");
-        } else if (MainForm.isGj && "oracle".equals(databaseType.getSelectedItem())) {
+        } else if ("oracle".equals(databaseType.getSelectedItem())) {
             comboPooledDataSource.setDriverClass("oracle.jdbc.driver.OracleDriver");
         }else {
             comboPooledDataSource.setDriverClass("oracle.jdbc.driver.OracleDriver");

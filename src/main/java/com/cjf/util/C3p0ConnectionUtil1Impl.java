@@ -24,7 +24,7 @@ public class C3p0ConnectionUtil1Impl {
         this.databaseType = databaseType;
     }
 
-    public ComboPooledDataSource getDataSource() throws PropertyVetoException {
+    public ComboPooledDataSource getDataSource() throws PropertyVetoException, SQLException {
         ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
         if (MainForm.isGj && "mysql".equals(databaseType.getSelectedItem())) {
             comboPooledDataSource.setDriverClass("com.mysql.cj.jdbc.Driver");
@@ -37,6 +37,8 @@ public class C3p0ConnectionUtil1Impl {
         comboPooledDataSource.setUser(username);
         comboPooledDataSource.setPassword(password);
         comboPooledDataSource.setInitialPoolSize(intiConnectionNum);
+        Connection connection = comboPooledDataSource.getConnection(username,password);
+        connection.close();
         return comboPooledDataSource;
     }
 

@@ -1,6 +1,7 @@
 package com.cjf.listener.mainImport;
 
 import com.cjf.MainForm;
+import com.cjf.MyApp;
 import com.cjf.dialog.MyDialog;
 import com.cjf.util.C3p0ConnectionUtil1Impl;
 import com.cjf.util.C3p0ConnectionUtil2Impl;
@@ -59,7 +60,7 @@ public class GetConnectionPoolActionListener implements ActionListener {
             MainForm.executor = new ThreadPoolExecutor((int) threadPoolCoreSize.getValue(), (int) threadPoolMaxSize.getValue(), 10, TimeUnit.MINUTES, new LinkedBlockingQueue<>(2000000));
         } else {
             int i = Runtime.getRuntime().availableProcessors();
-            // 开启了高级模式
+            // 未开启了高级模式
             MainForm.executor = new ThreadPoolExecutor(i + 1, (i + 1) + (i + 1) / 2, 10, TimeUnit.MINUTES, new LinkedBlockingQueue<>(2000000));
         }
         outLog.append("连接按钮开始\n");
@@ -157,7 +158,7 @@ public class GetConnectionPoolActionListener implements ActionListener {
 
     private void updateUrlItem(String str1, int flag) {
         boolean b = false;
-        for (String x : MainForm.url_item) {
+        for (String x : MyApp.url_item) {
             if (str1.equals(x)) {
                 b = true;
                 break;
@@ -166,27 +167,27 @@ public class GetConnectionPoolActionListener implements ActionListener {
         if (!b) {
             List<String> list = new ArrayList<>();
             list.add(str1);
-            list.addAll(MainForm.url_item);
-            MainForm.url_item = list;
+            list.addAll(MyApp.url_item);
+            MyApp.url_item = list;
             url1.removeAllItems();
             url2.removeAllItems();
-            MainForm.url_item.forEach(y -> {
+            MyApp.url_item.forEach(y -> {
                 url1.addItem(y);
                 url2.addItem(y);
             });
         } else {
-            MainForm.url_item.remove(str1);
+            MyApp.url_item.remove(str1);
             List<String> list = new ArrayList<>();
             list.add(str1);
-            list.addAll(MainForm.url_item);
-            MainForm.url_item = list;
+            list.addAll(MyApp.url_item);
+            MyApp.url_item = list;
             if (flag == 1) {
                 url1.removeAllItems();
             } else {
                 url1.addItem(str1);
             }
             url2.removeAllItems();
-            MainForm.url_item.forEach(y -> {
+            MyApp.url_item.forEach(y -> {
                 if (flag == 1) {
                     url1.addItem(y);
                 }
@@ -203,7 +204,7 @@ public class GetConnectionPoolActionListener implements ActionListener {
         try {
             fileWriter = new FileWriter(file);
             bufferedWriter = new BufferedWriter(fileWriter);
-            for (String s : MainForm.url_item) {
+            for (String s : MyApp.url_item) {
                 bufferedWriter.write(s + "\n");
             }
             bufferedWriter.flush();

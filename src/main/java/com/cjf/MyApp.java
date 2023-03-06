@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MyApp extends JFrame implements ActionListener {
 
@@ -18,6 +21,8 @@ public class MyApp extends JFrame implements ActionListener {
     private JMenu menu, aboutUs;
     private JMenuItem dbCopy, sqlFile, about;
     private JPanel mainView;//主页面，包括菜单部分和替换部分
+
+    public static List<String> url_item;
 
     public MyApp() {
         //添加菜单栏
@@ -47,6 +52,8 @@ public class MyApp extends JFrame implements ActionListener {
         mainView = new JPanel(gridLayout);
         mainView.add(menuBar, "1, 1, 1, 1");
 
+        init();
+
         jp1 = new JPanel();
         JPanel mainForm = new MainForm().getMainForm();
         mainForm.setPreferredSize(new Dimension(980, 570));
@@ -66,6 +73,40 @@ public class MyApp extends JFrame implements ActionListener {
         mainView.add(card, "1, 3, 1, 3");
     }
 
+    // 初始化
+    private void init() {
+        if (this.url_item == null) {
+            this.url_item = initUrl();
+        }
+    }
+
+    private List<String> initUrl() {
+        File file = new File(System.getProperty("user.dir") + "\\src\\main\\resources\\url.txt");
+        FileReader fileReader = null;
+        List<String> list = null;
+        BufferedReader bufferedReader = null;
+        try {
+            fileReader = new FileReader(file);
+            bufferedReader = new BufferedReader(fileReader);
+            list = new ArrayList<>();
+            String b;
+            while ((b = bufferedReader.readLine()) != null) {
+                list.add(b);
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return list;
+    }
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(new Runnable() {

@@ -22,8 +22,11 @@ public class ChooseFileActionListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setMultiSelectionEnabled(false);
-//        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter(FileImportForm.ft.substring(FileImportForm.ft.lastIndexOf(".")+1),"*");
-//        jFileChooser.setFileFilter(fileFilter);
+        if (FileImportForm.ft == null) {
+            FileImportForm.ft = "*.sql";
+        }
+        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter(FileImportForm.ft,FileImportForm.ft.substring(FileImportForm.ft.lastIndexOf(".")+1));
+        jFileChooser.setFileFilter(fileFilter);
         int returnVal = jFileChooser.showOpenDialog(new JButton());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             /** 得到选择的文件* */

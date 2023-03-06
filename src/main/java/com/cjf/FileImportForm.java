@@ -5,6 +5,12 @@ import com.cjf.listener.fileImport.ChooseFileActionListener;
 import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import com.cjf.listener.fileImport.FileImportGetConnectionActionListener;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
+
 
 public class FileImportForm {
     private JPanel mainForm;
@@ -23,25 +29,37 @@ public class FileImportForm {
     private JComboBox dbType;
 
     public static String ft;
+    public static ThreadPoolExecutor executor;
+    public static ComboPooledDataSource connectionPool1;
 
+    public static Map<String,String> cacheMap;
 
     public FileImportForm() {
-        // 添加选择文件监听
-        chooseSqlFileButton.addActionListener(new ChooseFileActionListener(outLog));
-// 监听是否开启高级模式
+        init();
+        ft = fileType.getToolTipText();
+        // 添加文件类型监听
         fileType.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED ) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
                     // 可编辑
                     ft = e.getItem().toString();
                 }
-
             }
         });
+        // 添加选择文件监听
+        chooseSqlFileButton.addActionListener(new ChooseFileActionListener(outLog));
+
+    }
+    private void init () {
+        MyApp.url_item.forEach(x -> {
+            url.addItem(x);
+        });
+        getConnectionButton.addActionListener(new FileImportGetConnectionActionListener(url, userName, password, outLog, dbType));
+
     }
 
-    public JPanel getMainForm() {
+    public JPanel getMainForm () {
         return mainForm;
     }
 }

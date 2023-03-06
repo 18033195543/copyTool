@@ -1,7 +1,6 @@
 package com.cjf.listener.mainImport;
 
 import com.cjf.MainForm;
-import com.cjf.dialog.MyDialog;
 import com.cjf.opreationdata.ExcutThread;
 
 import javax.swing.*;
