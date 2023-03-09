@@ -57,7 +57,11 @@ public class ExcutThread {
             List<String> list1 = (List<String>) stringObjectMap.get("columnNames");
 
             insertDate(tableName, list1, list);
-        } finally {
+        }catch (Exception e){
+            e.printStackTrace();
+            outLog.append(Thread.currentThread().getName() + "---->" + e.getMessage() + "\n");
+            outLog.setCaretPosition(outLog.getDocument().getLength());
+        }finally {
             countDownLatch.countDown();
         }
 
@@ -136,6 +140,8 @@ public class ExcutThread {
             preparedStatement.close();
         } catch (Exception e) {
             e.printStackTrace();
+            outLog.append(Thread.currentThread().getName() + "---->" + e.getMessage() + "\n");
+            outLog.setCaretPosition(outLog.getDocument().getLength());
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close();

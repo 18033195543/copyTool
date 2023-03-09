@@ -1,5 +1,7 @@
 package com.cjf.opreationdata;
 
+import com.cjf.FileImportForm;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -21,7 +23,29 @@ public class Test {
     }
 
     public static void main(String[] args) {
-        updateUrlFile();
+//        updateUrlFile();
+        String str = "insert into xxxx ssfa ;jfwlkjflwkjefwj;\n" +
+                "lfjwlejflsejf;\n" +
+                "flekjfslfjj;fjseljflsejflsejf";
+
+        excutSql(str);
+    }
+
+    private static void excutSql(String str){
+        if (null == str || str.length() == 0)
+            return;
+        int i = str.indexOf(";");
+        if (i == -1) {
+            System.out.println(str);
+            return;
+        }
+        String substring = str.substring(0, i);
+        if (null != substring && substring.length() > 0) {
+            System.out.println(substring);
+        }
+
+        String substring1 = str.substring(i+1);
+        excutSql(substring1);
     }
     private static void updateUrlFile() {
         File file = new File(System.getProperty("user.dir") + "\\src\\main\\resources\\url.txt");

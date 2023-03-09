@@ -8,7 +8,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.HashSet;
+import java.util.ArrayList;
 
 public class ChooseFileActionListener implements ActionListener {
 
@@ -20,12 +20,15 @@ public class ChooseFileActionListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        FileImportForm.fileCacheMap = new ArrayList<>();
+        outLog.append("清除缓存文件成功！\n");
+        outLog.setCaretPosition(outLog.getDocument().getLength());
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setMultiSelectionEnabled(false);
         if (FileImportForm.ft == null) {
             FileImportForm.ft = "*.sql";
         }
-        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter(FileImportForm.ft,FileImportForm.ft.substring(FileImportForm.ft.lastIndexOf(".")+1));
+        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter(FileImportForm.ft, FileImportForm.ft.substring(FileImportForm.ft.lastIndexOf(".") + 1));
         jFileChooser.setFileFilter(fileFilter);
         int returnVal = jFileChooser.showOpenDialog(new JButton());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -34,55 +37,61 @@ public class ChooseFileActionListener implements ActionListener {
             if (arrfiles == null || arrfiles.length == 0) {
                 return;
             }
-            FileInputStream input = null;
-            FileOutputStream out = null;
+            BufferedReader br = null;
             String path = "./";
             try {
-                for (File f : arrfiles) {
-                    File dir = new File(path);
-                    /** 目标文件夹 * */
-                    File[] fs = dir.listFiles();
-                    HashSet<String> set = new HashSet<String>();
-                    for (File file : fs) {
-                        set.add(file.getName());
-                    }
-                    /** 判断是否已有该文件* */
-                    if (set.contains(f.getName())) {
-                        JOptionPane.showMessageDialog(new JDialog(),
-                                f.getName() + ":该文件已存在！");
-                        return;
-                    }
-                    input = new FileInputStream(f);
-                    byte[] buffer = new byte[1024];
-                    File des = new File(path, f.getName());
-                    out = new FileOutputStream(des);
-                    int len = 0;
-                    while (-1 != (len = input.read(buffer))) {
-                        out.write(buffer, 0, len);
-                    }
-                    out.close();
-                    input.close();
+                File f = arrfiles[0];
+                FileReader fileReader = new FileReader(f);
+                br = new BufferedReader(fileReader);
+                StringBuffer stringBuffer = new StringBuffer();
+                String str;
+                while ((str = br.readLine()) != null) {
+                    stringBuffer.append(str);
                 }
-                outLog.append("上传成功！\n");
+                br.close();
+                str = stringBuffer.toString();
+                // 处理SQL语句
+                excutSql(str);
+                outLog.append("缓存成功！\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
-                new MyDialog("上传成功！");
+                new MyDialog("缓存成功！");
 //                JOptionPane.showMessageDialog(null, "上传成功！", "提示",
 //                        JOptionPane.INFORMATION_MESSAGE);
 
 
             } catch (FileNotFoundException e1) {
-                outLog.append("上传失败！\n");
+                outLog.append("缓存失败！\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
-                JOptionPane.showMessageDialog(null, "上传失败！", "提示",
+                JOptionPane.showMessageDialog(null, "缓存失败！", "提示",
                         JOptionPane.ERROR_MESSAGE);
                 e1.printStackTrace();
             } catch (IOException e1) {
-                outLog.append("上传失败！\n");
+                outLog.append("缓存失败！\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
-                JOptionPane.showMessageDialog(null, "上传失败！", "提示",
+                JOptionPane.showMessageDialog(null, "缓存失败！", "提示",
                         JOptionPane.ERROR_MESSAGE);
                 e1.printStackTrace();
+            } catch (Exception e1) {
+                outLog.append("缓存失败！\n"+e1.getMessage()+"\n");
+                outLog.setCaretPosition(outLog.getDocument().getLength());
             }
         }
+    }
+
+    private void excutSql(String str){
+        if (null == str || str.length() == 0)
+            return;
+        int i = str.indexOf(";");
+        if (i == -1) {
+            FileImportForm.fileCacheMap.add(str);
+            return;
+        }
+        String substring = str.substring(0, i);
+        if (null != substring && substring.length() > 0) {
+            FileImportForm.fileCacheMap.add(substring);
+        }
+
+        String substring1 = str.substring(i+1);
+        excutSql(substring1);
     }
 }
