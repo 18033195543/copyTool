@@ -3,17 +3,15 @@ package com.cjf;
 import com.cjf.listener.fileImport.ChooseFileActionListener;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import com.cjf.listener.fileImport.FileImportCloseConnectionActionListener;
 import com.cjf.listener.fileImport.FileImportGetConnectionActionListener;
+import com.cjf.listener.fileImport.StartImportActionListener;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
@@ -57,12 +55,7 @@ public class FileImportForm {
 
         closeConnectionButton.addActionListener(new FileImportCloseConnectionActionListener(outLog));
         // 执行sql监听
-        startImportButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
+        startImportButton.addActionListener(new StartImportActionListener(outLog));
     }
     private void init () {
         MyApp.url_item.forEach(x -> {

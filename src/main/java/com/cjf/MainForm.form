@@ -64,7 +64,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <text value="url2"/>
+                  <text value="输入数据库地址      "/>
                 </properties>
               </component>
               <component id="ffac1" class="javax.swing.JLabel">
@@ -405,7 +405,7 @@
                 </constraints>
                 <properties>
                   <horizontalTextPosition value="11"/>
-                  <text value="url1"/>
+                  <text value="输出数据库地址      "/>
                 </properties>
               </component>
               <component id="6232e" class="javax.swing.JComboBox" binding="url1">

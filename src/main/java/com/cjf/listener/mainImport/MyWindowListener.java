@@ -1,6 +1,8 @@
 package com.cjf.listener.mainImport;
 
+import com.cjf.FileImportForm;
 import com.cjf.MainForm;
+import com.cjf.listener.fileImport.StartImportActionListener;
 import com.cjf.opreationdata.ExcutThread;
 
 import javax.swing.*;
@@ -56,9 +58,28 @@ public class MyWindowListener implements WindowListener {
                     flag = false;
                 }
             }
+
+            boolean flag1 = true;
+            while (flag1) {
+                // 确保程序没有在读写数据
+                if (null == StartImportActionListener.countDownLatch) {
+                    flag1 = false;
+                } else if (StartImportActionListener.countDownLatch.getCount() != 0) {
+                    try {
+                        TimeUnit.SECONDS.sleep(3);
+                    } catch (InterruptedException interruptedException) {
+                        interruptedException.printStackTrace();
+                    }
+                } else {
+                    flag1 = false;
+                }
+            }
             // 关闭线程池
             if (MainForm.executor != null) {
                 MainForm.executor.shutdown();
+            }
+            if (FileImportForm.executor != null) {
+                FileImportForm.executor.shutdown();
             }
 
             /**      释放资源     **/
@@ -74,6 +95,14 @@ public class MyWindowListener implements WindowListener {
             if (MainForm.connectionPool2 != null) {
                 try {
                     MainForm.connectionPool2.close();
+                } catch (Exception throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+
+            if (FileImportForm.connectionPool1 != null) {
+                try {
+                    FileImportForm.connectionPool1.close();
                 } catch (Exception throwables) {
                     throwables.printStackTrace();
                 }
