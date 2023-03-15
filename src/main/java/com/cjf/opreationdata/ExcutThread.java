@@ -57,11 +57,11 @@ public class ExcutThread {
             List<String> list1 = (List<String>) stringObjectMap.get("columnNames");
 
             insertDate(tableName, list1, list);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             outLog.append(Thread.currentThread().getName() + "---->" + e.getMessage() + "\n");
             outLog.setCaretPosition(outLog.getDocument().getLength());
-        }finally {
+        } finally {
             countDownLatch.countDown();
         }
 
@@ -79,17 +79,13 @@ public class ExcutThread {
         List<String> list1 = new ArrayList<>();
         while (resultSet.next()) {
             Map row = new HashMap();
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int i = 1;
-            boolean b = true;
-            while (b && c) {
-                try {
-                    list1.add(metaData.getColumnLabel(i));
-                    i++;
-                } catch (SQLException e) {
-                    b = false;
-                    c = false;
+            if (c) {
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                int columnCount = metaData.getColumnCount();
+                for (int j = 1; j <= columnCount; j++) {
+                    list1.add(metaData.getColumnLabel(j));
                 }
+                c = false;
             }
 
             for (String s : list1) {

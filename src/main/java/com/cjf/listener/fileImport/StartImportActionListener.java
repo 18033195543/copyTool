@@ -6,24 +6,34 @@ import com.cjf.dialog.MyDialog;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StartImportActionListener implements ActionListener {
 
     private JTextArea outLog;
+    private JTextField tableName;
     private AtomicInteger atomicInteger = new AtomicInteger(0);
 
     public static CountDownLatch countDownLatch;
 
-    public StartImportActionListener(JTextArea outLog) {
+    public StartImportActionListener(JTextArea outLog,JTextField tableName) {
         this.outLog = outLog;
+        this.tableName = tableName;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        try {
+            Connection connection = FileImportForm.connectionPool1.getConnection();
+            DatabaseMetaData metaData = connection.getMetaData();
+            ResultSet columns = metaData.getColumns(null, "%", tableName.getText(), "%");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+
         int i = JOptionPane.showConfirmDialog(null, "是否开始导入SQL?", "导入SQL", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
         if (JOptionPane.YES_NO_OPTION == i) {// 选择导入sql
             if (FileImportForm.fileCacheMap == null || FileImportForm.fileCacheMap.size() == 0) {
@@ -52,10 +62,12 @@ public class StartImportActionListener implements ActionListener {
                 outLog.setCaretPosition(outLog.getDocument().getLength());
                 long l1 = System.currentTimeMillis();
                 long l2 = l1 - l;
-                outLog.append("总耗时==>" + (l2 / 1000) + "秒！");
+                outLog.append("总耗时==>" + (l2 / 1000) + "秒！\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
                 FileImportForm.fileCacheMap = null;
-                outLog.append("请先获取数据库连接！\n");
+                // 清0计数器
+                atomicInteger.set(0);
+                outLog.append("清除缓存文件成功！\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);

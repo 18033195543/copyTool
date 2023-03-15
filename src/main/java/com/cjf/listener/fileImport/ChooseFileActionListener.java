@@ -5,17 +5,23 @@ import com.cjf.dialog.MyDialog;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ChooseFileActionListener implements ActionListener {
 
     private JTextArea outLog;
+    private JLabel fileName;
 
-    public ChooseFileActionListener(JTextArea outLog) {
+    public ChooseFileActionListener(JTextArea outLog, JLabel fileName) {
         this.outLog = outLog;
+        this.fileName = fileName;
     }
 
     @Override
@@ -27,6 +33,10 @@ public class ChooseFileActionListener implements ActionListener {
         jFileChooser.setMultiSelectionEnabled(false);
         if (FileImportForm.ft == null) {
             FileImportForm.ft = "*.sql";
+        }else if ("*.sql".equals(FileImportForm.ft)){
+
+        }else if ("*.csv".equals(FileImportForm.ft)){
+
         }
         FileNameExtensionFilter fileFilter = new FileNameExtensionFilter(FileImportForm.ft, FileImportForm.ft.substring(FileImportForm.ft.lastIndexOf(".") + 1));
         jFileChooser.setFileFilter(fileFilter);
@@ -38,9 +48,15 @@ public class ChooseFileActionListener implements ActionListener {
                 return;
             }
             BufferedReader br = null;
-            String path = "./";
             try {
                 File f = arrfiles[0];
+                String fName = f.getName();
+                fileName.setToolTipText(fName);
+                if (fName.length() > 20) {
+                    String substring = fName.substring(fName.length() - 20);
+                    fName = "..." + substring;
+                }
+                fileName.setText(fName);
                 FileReader fileReader = new FileReader(f);
                 br = new BufferedReader(fileReader);
                 StringBuffer stringBuffer = new StringBuffer();
@@ -55,30 +71,28 @@ public class ChooseFileActionListener implements ActionListener {
                 outLog.append("缓存成功！\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
                 new MyDialog("缓存成功！");
-//                JOptionPane.showMessageDialog(null, "上传成功！", "提示",
-//                        JOptionPane.INFORMATION_MESSAGE);
 
 
             } catch (FileNotFoundException e1) {
-                outLog.append("缓存失败！\n");
+                outLog.append("缓存失败！" + e1.getMessage() + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
                 JOptionPane.showMessageDialog(null, "缓存失败！", "提示",
                         JOptionPane.ERROR_MESSAGE);
                 e1.printStackTrace();
             } catch (IOException e1) {
-                outLog.append("缓存失败！\n");
+                outLog.append("缓存失败！" + e1.getMessage() + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
                 JOptionPane.showMessageDialog(null, "缓存失败！", "提示",
                         JOptionPane.ERROR_MESSAGE);
                 e1.printStackTrace();
             } catch (Exception e1) {
-                outLog.append("缓存失败！\n"+e1.getMessage()+"\n");
+                outLog.append("缓存失败！\n" + e1.getMessage() + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
             }
         }
     }
 
-    private void excutSql(String str){
+    private void excutSql(String str) {
         if (null == str || str.length() == 0)
             return;
         int i = str.indexOf(";");
@@ -91,7 +105,7 @@ public class ChooseFileActionListener implements ActionListener {
             FileImportForm.fileCacheMap.add(substring);
         }
 
-        String substring1 = str.substring(i+1);
+        String substring1 = str.substring(i + 1);
         excutSql(substring1);
     }
 }

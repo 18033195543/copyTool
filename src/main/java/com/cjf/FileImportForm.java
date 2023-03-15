@@ -3,6 +3,8 @@ package com.cjf;
 import com.cjf.listener.fileImport.ChooseFileActionListener;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -30,6 +32,9 @@ public class FileImportForm {
     private JButton getConnectionButton;
     private JButton closeConnectionButton;
     private JComboBox dbType;
+    private JTextField tableName;
+    private JLabel fileName;
+    private JLabel tableNameField;
 
     public static String ft;
     public static ThreadPoolExecutor executor;
@@ -47,22 +52,30 @@ public class FileImportForm {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     // 可编辑
                     ft = e.getItem().toString();
+                    if ("*.csv".equals(ft)) {
+                        tableNameField.setVisible(true);
+                        tableName.setVisible(true);
+                    }else {
+                        tableNameField.setVisible(false);
+                        tableName.setVisible(false);
+                    }
                 }
             }
         });
         // 添加选择文件监听
-        chooseSqlFileButton.addActionListener(new ChooseFileActionListener(outLog));
+        chooseSqlFileButton.addActionListener(new ChooseFileActionListener(outLog,fileName));
 
         closeConnectionButton.addActionListener(new FileImportCloseConnectionActionListener(outLog));
         // 执行sql监听
-        startImportButton.addActionListener(new StartImportActionListener(outLog));
+        startImportButton.addActionListener(new StartImportActionListener(outLog, tableName));
     }
     private void init () {
         MyApp.url_item.forEach(x -> {
             url.addItem(x);
         });
         getConnectionButton.addActionListener(new FileImportGetConnectionActionListener(url, userName, password, outLog, dbType));
-
+        tableNameField.setVisible(false);
+        tableName.setVisible(false);
     }
 
     public JPanel getMainForm () {
