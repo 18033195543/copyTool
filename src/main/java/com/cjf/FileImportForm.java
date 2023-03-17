@@ -39,8 +39,9 @@ public class FileImportForm {
     public static String ft;
     public static ThreadPoolExecutor executor;
     public static ComboPooledDataSource connectionPool1;
+    public static List<String> csvRecodeList;
 
-    public static List<String> fileCacheMap;
+    public static List<String> fileCacheList;
 
     public FileImportForm() {
         init();
@@ -67,7 +68,7 @@ public class FileImportForm {
 
         closeConnectionButton.addActionListener(new FileImportCloseConnectionActionListener(outLog));
         // 执行sql监听
-        startImportButton.addActionListener(new StartImportActionListener(outLog, tableName));
+        startImportButton.addActionListener(new StartImportActionListener(outLog,tableName));
     }
     private void init () {
         MyApp.url_item.forEach(x -> {

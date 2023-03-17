@@ -5,13 +5,9 @@ import com.cjf.dialog.MyDialog;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ChooseFileActionListener implements ActionListener {
@@ -26,18 +22,15 @@ public class ChooseFileActionListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        FileImportForm.fileCacheMap = new ArrayList<>();
+        FileImportForm.fileCacheList = new ArrayList<>();
         outLog.append("清除缓存文件成功！\n");
         outLog.setCaretPosition(outLog.getDocument().getLength());
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setMultiSelectionEnabled(false);
         if (FileImportForm.ft == null) {
             FileImportForm.ft = "*.sql";
-        }else if ("*.sql".equals(FileImportForm.ft)){
-
-        }else if ("*.csv".equals(FileImportForm.ft)){
-
         }
+
         FileNameExtensionFilter fileFilter = new FileNameExtensionFilter(FileImportForm.ft, FileImportForm.ft.substring(FileImportForm.ft.lastIndexOf(".") + 1));
         jFileChooser.setFileFilter(fileFilter);
         int returnVal = jFileChooser.showOpenDialog(new JButton());
@@ -60,14 +53,25 @@ public class ChooseFileActionListener implements ActionListener {
                 FileReader fileReader = new FileReader(f);
                 br = new BufferedReader(fileReader);
                 StringBuffer stringBuffer = new StringBuffer();
-                String str;
-                while ((str = br.readLine()) != null) {
-                    stringBuffer.append(str);
+                if ("*.sql".equals(FileImportForm.ft)){
+                    String str;
+                    while ((str = br.readLine()) != null) {
+                        stringBuffer.append(str);
+                    }
+                    br.close();
+                    str = stringBuffer.toString();
+                    // 处理SQL语句
+                    excutSql(str);
+                }else if ("*.csv".equals(FileImportForm.ft)){
+                    if (FileImportForm.csvRecodeList == null) {
+                        FileImportForm.csvRecodeList = new ArrayList<>();
+                    }
+                    String str;
+                    while ((str = br.readLine()) != null) {
+                        FileImportForm.csvRecodeList.add(str);
+                    }
+                    br.close();
                 }
-                br.close();
-                str = stringBuffer.toString();
-                // 处理SQL语句
-                excutSql(str);
                 outLog.append("缓存成功！\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
                 new MyDialog("缓存成功！");
@@ -97,12 +101,12 @@ public class ChooseFileActionListener implements ActionListener {
             return;
         int i = str.indexOf(";");
         if (i == -1) {
-            FileImportForm.fileCacheMap.add(str);
+            FileImportForm.fileCacheList.add(str);
             return;
         }
         String substring = str.substring(0, i);
         if (null != substring && substring.length() > 0) {
-            FileImportForm.fileCacheMap.add(substring);
+            FileImportForm.fileCacheList.add(substring);
         }
 
         String substring1 = str.substring(i + 1);
