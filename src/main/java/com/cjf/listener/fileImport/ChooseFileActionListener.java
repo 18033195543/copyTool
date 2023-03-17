@@ -44,6 +44,15 @@ public class ChooseFileActionListener implements ActionListener {
             try {
                 File f = arrfiles[0];
                 String fName = f.getName();
+                String sufix = fName.substring(fName.lastIndexOf(".")+1);
+                String sufix1 = FileImportForm.ft.substring(FileImportForm.ft.lastIndexOf(".") + 1);
+                if (!sufix1.equals(sufix)) {
+                    outLog.append("文件类型错误！\n");
+                    outLog.setCaretPosition(outLog.getDocument().getLength());
+                    JOptionPane.showMessageDialog(null, "文件类型错误！", "提示",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 fileName.setToolTipText(fName);
                 if (fName.length() > 20) {
                     String substring = fName.substring(fName.length() - 20);
@@ -92,6 +101,8 @@ public class ChooseFileActionListener implements ActionListener {
             } catch (Exception e1) {
                 outLog.append("缓存失败！\n" + e1.getMessage() + "\n");
                 outLog.setCaretPosition(outLog.getDocument().getLength());
+                JOptionPane.showMessageDialog(null, "缓存失败！", "提示",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
