@@ -3,8 +3,6 @@ package com.cjf;
 import com.cjf.listener.fileImport.ChooseFileActionListener;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.color.ColorSpace;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 

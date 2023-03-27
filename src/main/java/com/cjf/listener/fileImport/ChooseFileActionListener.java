@@ -44,7 +44,7 @@ public class ChooseFileActionListener implements ActionListener {
             try {
                 File f = arrfiles[0];
                 String fName = f.getName();
-                String sufix = fName.substring(fName.lastIndexOf(".")+1);
+                String sufix = fName.substring(fName.lastIndexOf(".") + 1);
                 String sufix1 = FileImportForm.ft.substring(FileImportForm.ft.lastIndexOf(".") + 1);
                 if (!sufix1.equals(sufix)) {
                     outLog.append("文件类型错误！\n");
@@ -62,7 +62,7 @@ public class ChooseFileActionListener implements ActionListener {
                 FileReader fileReader = new FileReader(f);
                 br = new BufferedReader(fileReader);
                 StringBuffer stringBuffer = new StringBuffer();
-                if ("*.sql".equals(FileImportForm.ft)){
+                if ("*.sql".equals(FileImportForm.ft)) {
                     String str;
                     while ((str = br.readLine()) != null) {
                         stringBuffer.append(str);
@@ -71,7 +71,7 @@ public class ChooseFileActionListener implements ActionListener {
                     str = stringBuffer.toString();
                     // 处理SQL语句
                     excutSql(str);
-                }else if ("*.csv".equals(FileImportForm.ft)){
+                } else if ("*.csv".equals(FileImportForm.ft)) {
                     if (FileImportForm.csvRecodeList == null) {
                         FileImportForm.csvRecodeList = new ArrayList<>();
                     }
@@ -110,17 +110,24 @@ public class ChooseFileActionListener implements ActionListener {
     private void excutSql(String str) {
         if (null == str || str.length() == 0)
             return;
-        int i = str.indexOf(";");
-        if (i == -1) {
-            FileImportForm.fileCacheList.add(str);
-            return;
+        String tempStr = str;
+        boolean b = true;
+        int index = 0;
+        while (b) {
+            int i = tempStr.indexOf(";", index);
+            if (i == -1) {
+                String substring = tempStr.substring(index);
+                FileImportForm.fileCacheList.add(substring);
+                break;
+            } else {
+                String substring = tempStr.substring(index, i);
+                if (null != substring && substring.length() > 0) {
+                    FileImportForm.fileCacheList.add(substring);
+                    index = i + 1;
+                } else {
+                    b = false;
+                }
+            }
         }
-        String substring = str.substring(0, i);
-        if (null != substring && substring.length() > 0) {
-            FileImportForm.fileCacheList.add(substring);
-        }
-
-        String substring1 = str.substring(i + 1);
-        excutSql(substring1);
     }
 }

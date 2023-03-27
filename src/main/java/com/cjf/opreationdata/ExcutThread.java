@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
-public class ExcutThread {
+public class ExcutThread implements IExcutThread{
     private int a;
     private int b;
     private String outSql;
@@ -30,7 +30,7 @@ public class ExcutThread {
         this.countDownLatch = countDownLatch;
     }
 
-    public void excut() throws SQLException {
+    public void excut() {
         try {
             Connection connection = MainForm.connectionPool1.getConnection();
             String sql = null;

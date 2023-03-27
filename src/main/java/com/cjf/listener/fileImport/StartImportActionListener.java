@@ -3,6 +3,8 @@ package com.cjf.listener.fileImport;
 import com.cjf.FileImportForm;
 import com.cjf.dialog.MyDialog;
 import com.cjf.entity.ColumnEntity;
+import com.cjf.opreationdata.IExcutThread;
+import com.cjf.opreationdata.SqlFileExcutThread;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -80,13 +82,13 @@ public class StartImportActionListener implements ActionListener {
 
                 String[] split = s.split(",");
 
-
-            }else if ("*.sql".equals(FileImportForm.ft)){
+            } else if ("*.sql".equals(FileImportForm.ft)) {
                 countDownLatch = new CountDownLatch(FileImportForm.fileCacheList.size());
                 long l = System.currentTimeMillis();
                 for (String s : FileImportForm.fileCacheList) {
+                    IExcutThread excutThread = new SqlFileExcutThread( outLog, atomicInteger, s, countDownLatch);
                     FileImportForm.executor.execute(() -> {
-                        excuteSql(s, countDownLatch);
+                        excutThread.excut();
                     });
                 }
 
@@ -111,20 +113,4 @@ public class StartImportActionListener implements ActionListener {
         }
     }
 
-    // 执行sql
-    private void excuteSql(String sql, CountDownLatch cd) {
-        try {
-            Connection connection = FileImportForm.connectionPool1.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.executeUpdate();
-            connection.close();
-            outLog.append(atomicInteger.getAndIncrement() + "执行SQL!==>" + sql + "\n");
-            outLog.setCaretPosition(outLog.getDocument().getLength());
-        } catch (Exception e) {
-            outLog.append("SQL导入异常!==>" + sql + "\n");
-            outLog.setCaretPosition(outLog.getDocument().getLength());
-        } finally {
-            cd.countDown();
-        }
-    }
 }
