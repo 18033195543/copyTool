@@ -16,7 +16,7 @@ public class MainForm {
     public static String dbType = "oracle";
 
     // 判断是否打开高级模式
-    public static boolean isGj;
+    public static boolean isGj = false;
 
     public MainForm() {
         startButton.addActionListener(new StartCopyActionListener(getSql, tableName, outLog));
