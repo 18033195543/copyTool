@@ -3,8 +3,10 @@ package com.cjf.listener.fileImport;
 import com.cjf.FileImportForm;
 import com.cjf.dialog.MyDialog;
 import com.cjf.entity.ColumnEntity;
+import com.cjf.opreationdata.FileOperateService;
 import com.cjf.opreationdata.IExcutThread;
 import com.cjf.opreationdata.SqlFileExcutThread;
+import com.cjf.opreationdata.SqlFileOperateService;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -83,31 +85,12 @@ public class StartImportActionListener implements ActionListener {
                 String[] split = s.split(",");
 
             } else if ("*.sql".equals(FileImportForm.ft)) {
-                countDownLatch = new CountDownLatch(FileImportForm.fileCacheList.size());
-                long l = System.currentTimeMillis();
-                for (String s : FileImportForm.fileCacheList) {
-                    IExcutThread excutThread = new SqlFileExcutThread( outLog, atomicInteger, s, countDownLatch);
-                    FileImportForm.executor.execute(() -> {
-                        excutThread.excut();
-                    });
-                }
+                FileOperateService sqlFileOperateService = new SqlFileOperateService(atomicInteger, outLog);
+                new Thread(() -> {
+                    sqlFileOperateService.excute();
+                }).start();
 
-                try {
-                    countDownLatch.await();
-                    outLog.append("SQL导入完毕!\n");
-                    outLog.setCaretPosition(outLog.getDocument().getLength());
-                    long l1 = System.currentTimeMillis();
-                    long l2 = l1 - l;
-                    outLog.append("总耗时==>" + (l2 / 1000) + "秒！\n");
-                    outLog.setCaretPosition(outLog.getDocument().getLength());
-                    FileImportForm.fileCacheList = null;
-                    // 清0计数器
-                    atomicInteger.set(0);
-                    outLog.append("清除缓存文件成功！\n");
-                    outLog.setCaretPosition(outLog.getDocument().getLength());
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
+
             }
 
         }
