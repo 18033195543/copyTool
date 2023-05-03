@@ -72,9 +72,7 @@ public class ChooseFileActionListener implements ActionListener {
                     // 处理SQL语句
                     excutSql(str);
                 } else if ("*.csv".equals(FileImportForm.ft)) {
-                    if (FileImportForm.csvRecodeList == null) {
-                        FileImportForm.csvRecodeList = new ArrayList<>();
-                    }
+                    FileImportForm.csvRecodeList = new ArrayList<>();
                     String str;
                     while ((str = br.readLine()) != null) {
                         FileImportForm.csvRecodeList.add(str);
