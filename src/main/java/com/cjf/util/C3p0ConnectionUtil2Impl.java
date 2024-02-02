@@ -38,6 +38,7 @@ public class C3p0ConnectionUtil2Impl {
         comboPooledDataSource.setUser(username);
         comboPooledDataSource.setPassword(password);
         comboPooledDataSource.setInitialPoolSize(intiConnectionNum);
+        comboPooledDataSource.setLoginTimeout(5);
         Connection connection = comboPooledDataSource.getConnection();
         connection.close();
         return comboPooledDataSource;
