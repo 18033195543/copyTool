@@ -57,6 +57,8 @@ public class DataOperateService {
                 count += 20000;
             } else if (MainForm.isGj && "oracle".equals(MainForm.dbType)) {
                 excutThread = new ExcutThread(count, count += 20000, outSql, tableName, outLog, countDownLatch);
+            } else{
+                excutThread = new ExcutThread(count, count += 20000, outSql, tableName, outLog, countDownLatch);
             }
             ExcutThread finalExcutThread = excutThread;
             MainForm.executor.execute(() -> {
