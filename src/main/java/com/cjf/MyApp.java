@@ -38,6 +38,7 @@ public class MyApp extends JFrame implements ActionListener {
         // 添加帮助菜单
         aboutUs = new JMenu("Help");
         about = new JMenuItem("About");
+        about.addActionListener(this);
         aboutUs.add(about);
         // 将菜单添加进菜单栏
         menuBar.add(menu);
@@ -152,7 +153,36 @@ public class MyApp extends JFrame implements ActionListener {
             cardLayout.show(card, "card1");//根据名字切换界面
         } else if (e.getSource() == sqlFile) {
             cardLayout.show(card, "card2");
-        } else {
+        } else if(e.getSource() == about) {
+            this.setBounds(400, 200, 400, 200);
+            this.setVisible(true);
+            this.setTitle("about");
+            this.setLocationRelativeTo(null);
+            Container contentPane = this.getContentPane();
+            contentPane.setLayout(null);
+
+            JLabel la = new JLabel();
+            la.setVisible(true);
+            la.setText("作者：陈剑峰");
+            la.setBounds(10, -30, 200, 100);
+            JLabel la1 = new JLabel();
+            la1.setVisible(true);
+            la1.setText("联系方式");
+            la1.setBounds(10, -10, 200, 100);
+            JLabel la2 = new JLabel();
+            la2.setVisible(true);
+            la2.setText("QQ:329149782");
+            la2.setBounds(10, 10, 200, 100);
+            JLabel la3 = new JLabel();
+            la3.setVisible(true);
+            la3.setText("当前版本：v1.0.0");
+            la3.setBounds(10, 30, 200, 100);
+
+            contentPane.add(la);
+            contentPane.add(la1);
+            contentPane.add(la2);
+            contentPane.add(la3);
+        }else {
         }
     }
 
